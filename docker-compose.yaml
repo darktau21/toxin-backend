@@ -1,0 +1,23 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: toxin-nest
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+    volumes:
+      - ./:/app
+    environment:
+      MONGO_CONNECTION_STRING: mongodb://root:qwerty@db/toxin
+      NODE_ENV: development
+  db:
+    image: mongo:7.0
+    attach: false
+    container_name: toxin-mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: qwerty
