@@ -12,12 +12,14 @@ services:
     volumes:
       - ./:/app
     environment:
-      MONGO_CONNECTION_STRING: mongodb://root:qwerty@db/toxin
+      MONGO_CONNECTION_STRING: mongodb://db:27017/toxin
       NODE_ENV: development
+      TZ: UTC
   db:
     image: mongo:7.0
     attach: false
     container_name: toxin-mongo
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: qwerty
+    ports:
+      - 27017:27017
+    volumes:
+      - ./data:/data/db
