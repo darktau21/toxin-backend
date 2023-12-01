@@ -1,6 +1,6 @@
 declare const module: any;
 
-import { VersioningType } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import {
@@ -22,6 +22,8 @@ async function bootstrap() {
   if (configService.get('NODE_ENV') === 'development') {
     app.useLogger(console);
   }
+
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
   app.enableVersioning({ defaultVersion: '1', type: VersioningType.URI });
 
