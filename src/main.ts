@@ -7,9 +7,10 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
-import { AppConfigService, Env } from './env.interface';
+import { AppConfigService } from './env.interface';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -23,6 +24,14 @@ async function bootstrap() {
   }
 
   app.enableVersioning({ defaultVersion: '1', type: VersioningType.URI });
+
+  const config = new DocumentBuilder()
+    .setTitle('Toxin')
+    .setDescription('Документация по api')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
 
   await app.listen(3000, '0.0.0.0');
 
