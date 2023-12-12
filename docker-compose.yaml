@@ -9,12 +9,19 @@ services:
       - '3000:3000'
     depends_on:
       - db
+      - cache
     volumes:
       - ./:/app
     environment:
       MONGO_CONNECTION_STRING: mongodb://db:27017/toxin
+      REDIS_CONNECTION_STRING: redis://:qwerty@cache:6379/0
+      PASSWORD_HASH_ROUNDS: 12
       NODE_ENV: development
       TZ: UTC
+      JWT_ACCESS_EXP_TIME: 300
+      JWT_ACCESS_SECRET: super-secret-jwt-access-token
+      JWT_REFRESH_EXP_TIME: 5097600
+      COOKIE_SECRET: super-secret-cookie-sign
   db:
     image: mongo:7.0
     attach: false
@@ -22,4 +29,13 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - ./data:/data/db
+      - ./data/db:/data
+  cache:
+    image: redis:7.2
+    attach: false
+    container_name: toxin-redis
+    ports:
+      - 6379:6379
+    volumes:
+      - ./data/cache:/data
+    command: redis-server --save 20 1 --loglevel warning --requirepass qwerty
