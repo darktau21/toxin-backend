@@ -1,5 +1,6 @@
 declare const module: any;
 
+import { FastifyCookieOptions, fastifyCookie } from '@fastify/cookie';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -8,9 +9,10 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { useContainer } from 'class-validator';
 
-import { AppModule } from './app.module';
-import { AppConfigService } from './env.interface';
+import { AppModule } from '~/app.module';
+import { AppConfigService } from '~/env.interface';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -19,11 +21,14 @@ async function bootstrap() {
   );
 
   const configService: AppConfigService = app.get(ConfigService);
-  if (configService.get('NODE_ENV') === 'development') {
+  if (configService.get('NODE_ENV', { infer: true }) === 'development') {
     app.useLogger(console);
   }
 
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+  app.register(fastifyCookie, {
+    secret: configService.get('COOKIE_SECRET'),
+  } satisfies FastifyCookieOptions);
 
   app.enableVersioning({ defaultVersion: '1', type: VersioningType.URI });
 
