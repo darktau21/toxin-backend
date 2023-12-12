@@ -40,6 +40,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+
   await app.listen(3000, '0.0.0.0');
 
   if (module.hot) {
