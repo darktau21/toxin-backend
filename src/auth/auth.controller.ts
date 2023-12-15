@@ -11,12 +11,12 @@ import { ConfigService } from '@nestjs/config';
 import { ApiTags } from '@nestjs/swagger';
 import { FastifyReply } from 'fastify';
 
+import { LoginDto } from '~/auth/dto';
 import { AppConfigService } from '~/env.interface';
 
 import { AuthService } from './auth.service';
 import { Cookie, Fingerprint } from './decorators';
 import { RegisterDto } from './dto';
-import { LoginDto } from './dto/login.dto';
 import { IFingerprint } from './interfaces';
 
 const REFRESH_TOKEN_COOKIE = 'refreshToken';
@@ -50,7 +50,7 @@ export class AuthController {
     @Res() res: FastifyReply,
   ) {
     const tokens = await this.authService.login(loginDto, fingerprint);
-    this.sendTokens(tokens, res);
+    await this.sendTokens(tokens, res);
   }
 
   @Get('refresh')
@@ -60,7 +60,7 @@ export class AuthController {
     @Res() res: FastifyReply,
   ) {
     const tokens = await this.authService.refresh(refreshToken, fp);
-    this.sendTokens(tokens, res);
+    await this.sendTokens(tokens, res);
   }
 
   @Post('register')

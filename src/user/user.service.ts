@@ -19,24 +19,23 @@ export class UserService {
     return hash(password, +this.configService.get('PASSWORD_HASH_ROUNDS', 12));
   }
 
-  async create(userData: Omit<User, 'isBlocked' | 'role'>) {
+  async create(userData: Omit<User, 'isBlocked' | 'role'>): Promise<User> {
     const user = await this.userModel.findOne({ email: userData.email });
     if (user) {
       throw new ConflictException('user already exists');
     }
     const hashedPassword = await this.hashPassword(userData.password);
-    const newUser = new this.userModel({
+
+    return await this.userModel.create({
       ...userData,
       password: hashedPassword,
     });
-    await newUser.save();
-    return newUser;
   }
 
-  async delete(id: string) {
-    return this.userModel.deleteOne({ _id: id }).exec();
+  async delete(id: string): Promise<null> {
+    await this.userModel.deleteOne({ _id: id }).exec();
+    return null;
   }
-
   async findById(id: string, includeHidden: boolean = false) {
     const user = this.userModel.findById(id);
 
