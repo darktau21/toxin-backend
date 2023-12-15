@@ -12,6 +12,7 @@ services:
       - cache
     volumes:
       - ./:/app
+      - /app/node_modules
     environment:
       MONGO_CONNECTION_STRING: mongodb://db:27017/toxin
       REDIS_CONNECTION_STRING: redis://:qwerty@cache:6379/0
