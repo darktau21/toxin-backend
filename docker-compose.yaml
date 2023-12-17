@@ -27,14 +27,14 @@ services:
     image: mongo:7.0
     container_name: toxin-mongo
     ports:
-      - 27017:27017
+      - "27017:27017"
     volumes:
-      - ./data/db:/data
+      - ./data/db:/data/db
   cache:
     image: redis:7.2
     container_name: toxin-redis
     ports:
-      - 6379:6379
+      - "6379:6379"
     volumes:
       - ./data/cache:/data
     command: redis-server --save 20 1 --loglevel warning --requirepass qwerty
