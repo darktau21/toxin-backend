@@ -25,7 +25,6 @@ services:
       COOKIE_SECRET: super-secret-cookie-sign
   db:
     image: mongo:7.0
-    attach: false
     container_name: toxin-mongo
     ports:
       - 27017:27017
@@ -33,7 +32,6 @@ services:
       - ./data/db:/data
   cache:
     image: redis:7.2
-    attach: false
     container_name: toxin-redis
     ports:
       - 6379:6379
