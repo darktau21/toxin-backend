@@ -7,16 +7,15 @@ import { RedisCache } from 'cache-manager-redis-yet';
 import { add } from 'date-fns';
 import { v4 } from 'uuid';
 
-import { AppConfigService } from '~/env.interface';
-import { UserDocument, UserService } from '~/user';
-
-import { RegisterDto } from './dto';
-import { LoginDto } from './dto';
+import { LoginDto, RegisterDto } from '~/auth/dto';
 import {
   IAccessTokenData,
   IFingerprint,
   IRefreshTokenData,
-} from './interfaces';
+} from '~/auth/interfaces';
+import { AppConfigService } from '~/env.interface';
+import { UserDocument } from '~/user/schemas';
+import { UserService } from '~/user/user.service';
 
 @Injectable()
 export class AuthService {

@@ -6,18 +6,18 @@ import {
   Inject,
   Post,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiTags } from '@nestjs/swagger';
 import { FastifyReply } from 'fastify';
 
-import { LoginDto } from '~/auth/dto';
+import { AuthService } from '~/auth/auth.service';
+import { Cookie, Fingerprint } from '~/auth/decorators';
+import { LoginDto, RegisterDto } from '~/auth/dto';
+import { JwtAuthGuard } from '~/auth/guards';
+import { IFingerprint } from '~/auth/interfaces';
 import { AppConfigService } from '~/env.interface';
-
-import { AuthService } from './auth.service';
-import { Cookie, Fingerprint } from './decorators';
-import { RegisterDto } from './dto';
-import { IFingerprint } from './interfaces';
 
 const REFRESH_TOKEN_COOKIE = 'refreshToken';
 

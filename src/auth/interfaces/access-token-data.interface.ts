@@ -1,4 +1,4 @@
-import { Roles } from '~/user';
+import { Roles } from '~/user/schemas';
 
 export interface IAccessTokenData {
   email: string;

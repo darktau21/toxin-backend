@@ -2,9 +2,8 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { FastifyRequest } from 'fastify';
 
-import { Roles, UserDocument } from '~/user';
-
-import { ROLES_METADATA_KEY } from '../decorators';
+import { ROLES_METADATA_KEY } from '~/auth/decorators';
+import { Roles, UserDocument } from '~/user/schemas';
 
 @Injectable()
 export class RoleGuard implements CanActivate {

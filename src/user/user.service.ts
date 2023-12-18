@@ -5,8 +5,7 @@ import { hash } from 'bcrypt';
 import { Model } from 'mongoose';
 
 import { AppConfigService } from '~/env.interface';
-
-import { User } from './schemas';
+import { User } from '~/user/schemas';
 
 @Injectable()
 export class UserService {
