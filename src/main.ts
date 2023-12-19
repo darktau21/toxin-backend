@@ -26,7 +26,7 @@ async function bootstrap() {
   }
 
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
-  app.register(fastifyCookie, {
+  await app.register(fastifyCookie, {
     secret: configService.get('COOKIE_SECRET'),
   } satisfies FastifyCookieOptions);
 
