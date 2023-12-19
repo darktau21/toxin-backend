@@ -71,7 +71,8 @@ export class AuthService {
       throw new UnauthorizedException('wrong email or password');
     }
 
-    const tokens = await this.generateTokens(user, fingerprint);
+    return await this.generateTokens(user, fingerprint);
+  }
 
   async logout(refreshToken: string) {
     await this.cacheManager.del(refreshToken);
@@ -83,16 +84,17 @@ export class AuthService {
 
     await this.cacheManager.del(refreshToken);
 
+    const user = await this.userService.findById(refreshTokenData.userId);
+
     if (
       !refreshTokenData ||
-      refreshTokenData.fingerprint.userAgent !== fingerprint.userAgent
+      refreshTokenData.fingerprint.userAgent !== fingerprint.userAgent ||
+      !user
     ) {
       throw new UnauthorizedException('invalid refresh session');
     }
 
-    const user = await this.userService.findById(refreshTokenData.userId);
-    const tokens = await this.generateTokens(user, fingerprint);
-    return tokens;
+    return await this.generateTokens(user, fingerprint);
   }
 
   async register(registerDto: RegisterDto) {
