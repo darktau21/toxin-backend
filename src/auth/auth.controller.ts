@@ -54,6 +54,22 @@ export class AuthController {
     await this.sendTokens(tokens, res);
   }
 
+  @Get('logout')
+  @UseGuards(JwtAuthGuard)
+  async logout(
+    @Res() res: FastifyReply,
+    @Cookie(REFRESH_TOKEN_COOKIE) refreshToken: string,
+  ) {
+    await this.authService.logout(refreshToken);
+    res.clearCookie(REFRESH_TOKEN_COOKIE, {
+      httpOnly: true,
+      path: '/v1/auth',
+      sameSite: 'lax',
+      secure: this.configService.get('NODE_ENV') === 'production',
+    });
+    res.status(HttpStatus.NO_CONTENT).send();
+  }
+
   @Get('refresh')
   async refresh(
     @Cookie(REFRESH_TOKEN_COOKIE) refreshToken: string,

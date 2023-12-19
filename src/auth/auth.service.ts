@@ -73,7 +73,8 @@ export class AuthService {
 
     const tokens = await this.generateTokens(user, fingerprint);
 
-    return tokens;
+  async logout(refreshToken: string) {
+    await this.cacheManager.del(refreshToken);
   }
 
   async refresh(refreshToken: string, fingerprint: IFingerprint) {
