@@ -102,7 +102,7 @@ export class AuthService {
   }
 
   async validateUser(payload: IAccessTokenData) {
-    const user = await this.userService.findById(payload.id, true);
+    const user = await this.userService.findById(payload.id);
     if (!user || user.isBlocked) {
       throw new UnauthorizedException();
     }
