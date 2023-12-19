@@ -36,8 +36,9 @@ export class AuthController {
     res.setCookie(REFRESH_TOKEN_COOKIE, tokens.refreshToken, {
       expires: new Date(tokens.refreshTokenData.expiresIn),
       httpOnly: true,
-      secure:
-        this.configService.get('NODE_ENV', { infer: true }) === 'production',
+      path: '/v1/auth',
+      sameSite: 'lax',
+      secure: this.configService.get('NODE_ENV') === 'production',
     });
 
     res.code(HttpStatus.CREATED).send({ accessToken: tokens.accessToken });
