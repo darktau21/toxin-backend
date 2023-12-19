@@ -13,7 +13,7 @@ export enum Roles {
   USER = 'user',
 }
 
-@Schema()
+@Schema({ versionKey: false })
 export class User {
   @Prop()
   birthday: string;
