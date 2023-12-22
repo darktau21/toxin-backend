@@ -84,7 +84,7 @@ export class AuthService {
 
     await this.cacheManager.del(refreshToken);
 
-    const user = await this.userService.findById(refreshTokenData.userId);
+    const user = await this.userService.findById(refreshTokenData?.userId);
 
     if (
       !refreshTokenData ||
