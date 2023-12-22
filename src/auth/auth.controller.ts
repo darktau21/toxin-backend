@@ -67,7 +67,7 @@ export class AuthController {
       sameSite: 'lax',
       secure: this.configService.get('NODE_ENV') === 'production',
     });
-    res.status(HttpStatus.NO_CONTENT).send();
+    res.code(HttpStatus.NO_CONTENT).send();
   }
 
   @Get('refresh')
