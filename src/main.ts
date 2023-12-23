@@ -36,6 +36,12 @@ async function bootstrap() {
   app.enableVersioning({ defaultVersion: '1', type: VersioningType.URI });
 
   const config = new DocumentBuilder()
+    .addBearerAuth({
+      description: 'Введите access token в поле в виде "Bearer {токен}"',
+      in: 'header',
+      name: 'Authorization',
+      type: 'apiKey',
+    })
     .setTitle('Toxin')
     .setDescription('Документация по api')
     .setVersion('1.0')

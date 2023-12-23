@@ -54,6 +54,7 @@ export class AuthController {
     return { accessToken: tokens.accessToken };
   }
 
+  @ApiBearerAuth()
   @Get('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(
