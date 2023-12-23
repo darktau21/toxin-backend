@@ -45,6 +45,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @UseGuards(UnauthorizedGuard)
   async login(
     @Body() loginDto: LoginDto,
     @Fingerprint() fingerprint: IFingerprint,
@@ -85,6 +86,7 @@ export class AuthController {
   }
 
   @Post('register')
+  @UseGuards(UnauthorizedGuard)
   @HttpCode(HttpStatus.CREATED)
   async register(
     @Body() registerDto: RegisterDto,

@@ -7,6 +7,7 @@ import { AppConfigService } from '~/app/interfaces';
 import { AuthController } from '~/auth/auth.controller';
 import { AuthService } from '~/auth/auth.service';
 import { JwtAuthGuard, RoleGuard } from '~/auth/guards';
+import { UnauthorizedGuard } from '~/auth/guards';
 import { JwtStrategy } from '~/auth/strategies';
 import { UserModule } from '~/user/user.module';
 
@@ -25,6 +26,12 @@ import { UserModule } from '~/user/user.module';
       }),
     }),
   ],
-  providers: [AuthService, JwtStrategy, JwtAuthGuard, RoleGuard],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    JwtAuthGuard,
+    RoleGuard,
+    UnauthorizedGuard,
+  ],
 })
 export class AuthModule {}
