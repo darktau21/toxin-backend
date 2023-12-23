@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { hash } from 'bcrypt';
 import { Model } from 'mongoose';
 
-import { AppConfigService } from '~/env.interface';
+import { AppConfigService } from '~/app/interfaces';
 import { User } from '~/user/schemas';
 
 @Injectable()

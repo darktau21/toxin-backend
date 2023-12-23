@@ -3,9 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy, StrategyOptions } from 'passport-jwt';
 
+import { AppConfigService } from '~/app/interfaces';
 import { AuthService } from '~/auth/auth.service';
 import { IAccessTokenData } from '~/auth/interfaces';
-import { AppConfigService } from '~/env.interface';
 
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(

@@ -3,11 +3,11 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
+import { AppConfigService } from '~/app/interfaces';
 import { AuthController } from '~/auth/auth.controller';
 import { AuthService } from '~/auth/auth.service';
 import { JwtAuthGuard, RoleGuard } from '~/auth/guards';
 import { JwtStrategy } from '~/auth/strategies';
-import { AppConfigService } from '~/env.interface';
 import { UserModule } from '~/user/user.module';
 
 @Module({

@@ -9,8 +9,8 @@ import {
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 
-import { AppModule } from '~/app.module';
-import { AppConfigService } from '~/env.interface';
+import { AppModule } from '~/app/app.module';
+import { AppConfigService } from '~/app/interfaces';
 
 declare const module: any;
 

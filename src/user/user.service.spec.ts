@@ -4,7 +4,8 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model, Query } from 'mongoose';
 
-import { Genders, User } from '~/user/schemas';
+import type { AppConfigService } from '~/app/interfaces';
+
 import { UserService } from '~/user/user.service';
 
 describe('UserService', () => {

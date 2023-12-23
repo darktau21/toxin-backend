@@ -8,12 +8,12 @@ import { Test, type TestingModule } from '@nestjs/testing';
 import { hash } from 'bcrypt';
 import { validate } from 'uuid';
 
+import type { AppConfigService } from '~/app/interfaces';
 import type {
   IAccessTokenData,
   IFingerprint,
   IRefreshTokenData,
 } from '~/auth/interfaces';
-import type { AppConfigService } from '~/env.interface';
 
 import { AuthService } from '~/auth/auth.service';
 import { Genders, Roles, type UserDocument } from '~/user/schemas';

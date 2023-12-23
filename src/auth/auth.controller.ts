@@ -12,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { ApiTags } from '@nestjs/swagger';
 import { FastifyReply } from 'fastify';
 
+import { AppConfigService } from '~/app/interfaces';
 import { AuthService } from '~/auth/auth.service';
 import { Cookie, Fingerprint } from '~/auth/decorators';
 import { LoginDto, RegisterDto } from '~/auth/dto';

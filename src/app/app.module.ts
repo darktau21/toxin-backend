@@ -5,8 +5,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { redisStore } from 'cache-manager-redis-yet';
 import { Connection } from 'mongoose';
 
+import { AppConfigService } from '~/app/interfaces';
 import { AuthModule } from '~/auth/auth.module';
-import { AppConfigService } from '~/env.interface';
 import { UserModule } from '~/user/user.module';
 
 @Module({
