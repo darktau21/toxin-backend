@@ -6,7 +6,7 @@ import { type DeepMocked, createMock } from '@golevelup/ts-jest';
 import { Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 
-import { RoleGuard } from '~/auth/guards/role.guard';
+import { RoleGuard } from '~/auth/guards';
 import { Roles, type UserDocument } from '~/user/schemas';
 
 describe('RoleGuard', () => {

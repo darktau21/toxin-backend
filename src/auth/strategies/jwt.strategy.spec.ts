@@ -4,7 +4,7 @@ import { Test } from '@nestjs/testing';
 import type { IAccessTokenData } from '~/auth/interfaces';
 
 import { AuthService } from '~/auth/auth.service';
-import { JwtStrategy } from '~/auth/strategies/jwt.strategy';
+import { JwtStrategy } from '~/auth/strategies';
 import { Roles } from '~/user/schemas';
 
 describe('JwtStrategy', () => {

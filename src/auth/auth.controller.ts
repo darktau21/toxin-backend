@@ -10,18 +10,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { FastifyReply } from 'fastify';
 
 import { AppConfigService } from '~/app/interfaces';
 import { AuthService } from '~/auth/auth.service';
 import { Cookie, Fingerprint } from '~/auth/decorators';
 import { LoginDto, RegisterDto } from '~/auth/dto';
-import { JwtAuthGuard } from '~/auth/guards';
-import { IFingerprint } from '~/auth/interfaces';
-import { AppConfigService } from '~/env.interface';
-
-const REFRESH_TOKEN_COOKIE = 'refreshToken';
+import { UnauthorizedGuard } from '~/auth/guards';
+import { IFingerprint, REFRESH_TOKEN_COOKIE } from '~/auth/interfaces';
 
 @ApiTags('Авторизация')
 @Controller('auth')
