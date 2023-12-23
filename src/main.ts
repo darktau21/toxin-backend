@@ -10,6 +10,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 
 import { AppModule } from '~/app/app.module';
+import { ResponseWrapperInterceptor } from '~/app/interceptors';
 import { AppConfigService } from '~/app/interfaces';
 
 declare const module: any;
@@ -26,6 +27,8 @@ async function bootstrap() {
   }
 
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+  app.useGlobalInterceptors(new ResponseWrapperInterceptor());
+
   await app.register(fastifyCookie, {
     secret: configService.get('COOKIE_SECRET'),
   } satisfies FastifyCookieOptions);
