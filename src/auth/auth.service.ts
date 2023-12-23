@@ -75,14 +75,15 @@ export class AuthService {
   }
 
   async logout(refreshToken: string) {
-    await this.cacheManager.del(refreshToken);
+    await this.cacheManager.del(refreshToken ?? '');
   }
 
   async refresh(refreshToken: string, fingerprint: IFingerprint) {
-    const refreshTokenData =
-      await this.cacheManager.get<IRefreshTokenData>(refreshToken);
+    const refreshTokenData = await this.cacheManager.get<IRefreshTokenData>(
+      refreshToken ?? '',
+    );
 
-    await this.cacheManager.del(refreshToken);
+    await this.cacheManager.del(refreshToken ?? '');
 
     const user = await this.userService.findById(refreshTokenData?.userId);
 
