@@ -1,7 +1,6 @@
 import type { FastifyReply } from 'fastify';
 
 import { type DeepMocked, createMock } from '@golevelup/ts-jest';
-import { HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 
@@ -100,14 +99,13 @@ describe('AuthController', () => {
       );
     });
 
-    it('should reply with created status code', async () => {
-      await authController.login(mockLoginDto, mockFingerprint, mockResponse);
-      expect(mockResponse.code).toHaveBeenCalledWith(HttpStatus.CREATED);
-    });
-
-    it('should send provided access token', async () => {
-      await authController.login(mockLoginDto, mockFingerprint, mockResponse);
-      expect(mockResponse.send).toHaveBeenCalledWith({
+    it('should return provided access token', async () => {
+      const result = await authController.login(
+        mockLoginDto,
+        mockFingerprint,
+        mockResponse,
+      );
+      expect(result).toEqual({
         accessToken: mockAccessToken,
       });
     });
@@ -128,18 +126,14 @@ describe('AuthController', () => {
       expect(mockResponse.clearCookie).toHaveBeenCalled();
     });
 
-    it('should reply with no content status code', async () => {
-      jest.spyOn(mockResponse, 'code');
-
-      await authController.logout(mockResponse, mockRefreshToken);
-      expect(mockResponse.code).toHaveBeenCalledWith(HttpStatus.NO_CONTENT);
-    });
-
-    it('should send reply', async () => {
+    it('should return null', async () => {
       jest.spyOn(mockResponse, 'send');
 
-      await authController.logout(mockResponse, mockRefreshToken);
-      expect(mockResponse.send).toHaveBeenCalled();
+      const result = await authController.logout(
+        mockResponse,
+        mockRefreshToken,
+      );
+      expect(result).toEqual(null);
     });
   });
 
@@ -182,22 +176,13 @@ describe('AuthController', () => {
       );
     });
 
-    it('should reply with created status code', async () => {
-      await authController.register(
+    it('should return access token', async () => {
+      const result = await authController.register(
         mockRegisterDto,
         mockFingerprint,
         mockResponse,
       );
-      expect(mockResponse.code).toHaveBeenCalledWith(HttpStatus.CREATED);
-    });
-
-    it('should send provided access token', async () => {
-      await authController.register(
-        mockRegisterDto,
-        mockFingerprint,
-        mockResponse,
-      );
-      expect(mockResponse.send).toHaveBeenCalledWith({
+      expect(result).toEqual({
         accessToken: mockAccessToken,
       });
     });
@@ -235,22 +220,13 @@ describe('AuthController', () => {
       );
     });
 
-    it('should reply with created status code', async () => {
-      await authController.refresh(
+    it('should return new access token', async () => {
+      const result = await authController.refresh(
         mockRefreshToken,
         mockFingerprint,
         mockResponse,
       );
-      expect(mockResponse.code).toHaveBeenCalledWith(HttpStatus.CREATED);
-    });
-
-    it('should send new access token', async () => {
-      await authController.refresh(
-        mockRefreshToken,
-        mockFingerprint,
-        mockResponse,
-      );
-      expect(mockResponse.send).toHaveBeenCalledWith({
+      expect(result).toEqual({
         accessToken: newMockAccessToken,
       });
     });
