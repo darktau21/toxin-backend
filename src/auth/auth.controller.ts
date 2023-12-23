@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   HttpStatus,
   Inject,
   Post,
@@ -30,7 +31,7 @@ export class AuthController {
     @Inject(ConfigService) private readonly configService: AppConfigService,
   ) {}
 
-  private async sendTokens(
+  private setCookieToken(
     tokens: Awaited<ReturnType<typeof this.authService.login>>,
     res: FastifyReply,
   ) {
@@ -41,26 +42,26 @@ export class AuthController {
       sameSite: 'lax',
       secure: this.configService.get('NODE_ENV') === 'production',
     });
-
-    res.code(HttpStatus.CREATED).send({ accessToken: tokens.accessToken });
   }
 
   @Post('login')
   async login(
     @Body() loginDto: LoginDto,
     @Fingerprint() fingerprint: IFingerprint,
-    @Res() res: FastifyReply,
+    @Res({ passthrough: true }) res: FastifyReply,
   ) {
     const tokens = await this.authService.login(loginDto, fingerprint);
-    await this.sendTokens(tokens, res);
+    this.setCookieToken(tokens, res);
+
+    return { accessToken: tokens.accessToken };
   }
 
   @Get('logout')
-  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async logout(
-    @Res() res: FastifyReply,
+    @Res({ passthrough: true }) res: FastifyReply,
     @Cookie(REFRESH_TOKEN_COOKIE) refreshToken: string,
-  ) {
+  ): Promise<null> {
     await this.authService.logout(refreshToken);
     res.clearCookie(REFRESH_TOKEN_COOKIE, {
       httpOnly: true,
@@ -68,27 +69,32 @@ export class AuthController {
       sameSite: 'lax',
       secure: this.configService.get('NODE_ENV') === 'production',
     });
-    res.code(HttpStatus.NO_CONTENT).send();
+    return null;
   }
 
   @Get('refresh')
   async refresh(
     @Cookie(REFRESH_TOKEN_COOKIE) refreshToken: string,
     @Fingerprint() fp: IFingerprint,
-    @Res() res: FastifyReply,
+    @Res({ passthrough: true }) res: FastifyReply,
   ) {
     const tokens = await this.authService.refresh(refreshToken, fp);
-    await this.sendTokens(tokens, res);
+    this.setCookieToken(tokens, res);
+
+    return { accessToken: tokens.accessToken };
   }
 
   @Post('register')
+  @HttpCode(HttpStatus.CREATED)
   async register(
     @Body() registerDto: RegisterDto,
     @Fingerprint() fingerprint: IFingerprint,
-    @Res() res: FastifyReply,
+    @Res({ passthrough: true }) res: FastifyReply,
   ) {
     await this.authService.register(registerDto);
     const tokens = await this.authService.login(registerDto, fingerprint);
-    await this.sendTokens(tokens, res);
+    this.setCookieToken(tokens, res);
+
+    return { accessToken: tokens.accessToken };
   }
 }
