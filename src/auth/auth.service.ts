@@ -48,24 +48,21 @@ export class AuthService {
     return { token, tokenData };
   }
 
-  private async generateTokens(user: UserDocument, fingerprint: IFingerprint) {
+  private async generateTokens(user: User, fingerprint: IFingerprint) {
     const accessToken = await this.generateAccessToken({
       email: user.email,
-      id: user.id,
+      id: user._id.toString(),
       role: user.role,
     });
 
     const { token: refreshToken, tokenData: refreshTokenData } =
-      await this.generateRefreshToken(user.id, fingerprint);
+      await this.generateRefreshToken(user._id.toString(), fingerprint);
 
     return { accessToken, refreshToken, refreshTokenData };
   }
 
   async login(loginDto: LoginDto, fingerprint: IFingerprint) {
-    const user = await this.userService.findOne(
-      { email: loginDto.email },
-      true,
-    );
+    const user = await this.userService.findOne({ email: loginDto.email });
 
     if (!user || !(await compare(loginDto.password, user.password))) {
       throw new UnauthorizedException('wrong email or password');
