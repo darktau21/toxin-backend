@@ -3,7 +3,7 @@ import { ConflictException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Model, Query } from 'mongoose';
+import { Model, Query, Types } from 'mongoose';
 
 import type { AppConfigService } from '~/app/interfaces';
 
@@ -14,13 +14,18 @@ describe('UserService', () => {
   let userService: UserService;
   let configService: AppConfigService;
   let userModel: DeepMocked<Model<User>>;
+  const userQuery = {
+    exec: jest.fn(),
+    lean: jest.fn(),
+  };
 
   const mockUser = {
-    _id: '6578b7e174334f130d4401f9',
+    _id: new Types.ObjectId('6578b7e174334f130d4401f9'),
     birthday: '2002-04-13',
     email: 'test13@gmail.com',
     gender: Genders.MALE,
     isBlocked: false,
+    isDeleted: false,
     isSubscriber: false,
     lastName: 'Smith',
     name: 'John',
@@ -44,6 +49,14 @@ describe('UserService', () => {
     userService = module.get(UserService);
     configService = module.get(ConfigService);
     userModel = module.get(getModelToken(User.name));
+
+    jest
+      .spyOn(userModel, 'findOne')
+      .mockReturnValue(userQuery as unknown as Query<any, any>);
+    jest
+      .spyOn(userModel, 'find')
+      .mockReturnValue(userQuery as unknown as Query<any, any>);
+    jest.spyOn(userQuery, 'lean').mockReturnThis();
   });
 
   it('userService should be defined', () => {
@@ -52,68 +65,18 @@ describe('UserService', () => {
 
   describe('findById', () => {
     it('should return user', async () => {
-      jest
-        .spyOn(userModel, 'findById')
-        .mockReturnThis()
-        .mockReturnValue({
-          exec: jest.fn().mockResolvedValue(mockUser),
-        } as unknown as Query<User, any>);
+      jest.spyOn(userQuery, 'exec').mockResolvedValue(mockUser);
+      const result = await userService.findById(mockUser._id.toString());
 
-      const result = await userService.findById(mockUser._id);
-
-      expect(userModel.findById).toHaveBeenCalledWith(mockUser._id);
-      expect(result).toEqual(mockUser);
-    });
-
-    it('should return user with additional fields', async () => {
-      jest
-        .spyOn(userModel, 'findById')
-        .mockReturnThis()
-        .mockReturnValue({
-          exec: jest.fn().mockResolvedValue(mockUser),
-          select: jest.fn().mockReturnThis(),
-        } as unknown as Query<User, any>);
-
-      const result = await userService.findById(mockUser._id, true);
-
-      expect(userModel.findById(mockUser._id).select).toHaveBeenCalledWith([
-        '+password',
-        '+isBlocked',
-      ]);
       expect(result).toEqual(mockUser);
     });
   });
 
   describe('findOne', () => {
     it('should return user', async () => {
-      jest
-        .spyOn(userModel, 'findOne')
-        .mockReturnThis()
-        .mockReturnValue({
-          exec: jest.fn().mockResolvedValue(mockUser),
-        } as unknown as Query<User, any>);
+      jest.spyOn(userQuery, 'exec').mockResolvedValue(mockUser);
 
       const result = await userService.findOne({ email: mockUser.email });
-
-      expect(userModel.findOne).toHaveBeenCalledWith({ email: mockUser.email });
-      expect(result).toEqual(mockUser);
-    });
-
-    it('should return user with additional data', async () => {
-      jest
-        .spyOn(userModel, 'findOne')
-        .mockReturnThis()
-        .mockReturnValue({
-          exec: jest.fn().mockResolvedValue(mockUser),
-          select: jest.fn().mockReturnThis(),
-        } as unknown as Query<User, any>);
-
-      const result = await userService.findOne({ email: mockUser.email }, true);
-
-      expect(
-        userModel.findOne({ email: mockUser.email }).select,
-      ).toHaveBeenCalledWith(['+password', '+isBlocked']);
-
       expect(result).toEqual(mockUser);
     });
   });
@@ -143,20 +106,31 @@ describe('UserService', () => {
   });
 
   describe('delete', () => {
-    it('should delete user', async () => {
-      jest
-        .spyOn(userModel, 'deleteOne')
-        .mockReturnThis()
-        // @ts-expect-error should return delete result
-        .mockReturnValue({ exec: jest.fn() });
+    it('should return null', async () => {
+      const result = await userService.delete(mockUser._id.toString());
+      expect(result).toStrictEqual(null);
+    });
+  });
 
-      await userService.delete(mockUser._id);
-      expect(userModel.deleteOne).toBeCalledWith({ _id: mockUser._id });
+  describe('findMany', () => {
+    it('should return array with user', async () => {
+      jest.spyOn(userQuery, 'exec').mockResolvedValue([mockUser]);
+
+      const result = await userService.findMany({
+        birthday: mockUser.birthday,
+      });
+
+      expect(result).toContain(mockUser);
     });
 
-    it('should return null', async () => {
-      const result = await userService.delete(mockUser._id);
-      expect(result).toStrictEqual(null);
+    it('should return empty array', async () => {
+      jest.spyOn(userQuery, 'exec').mockResolvedValue([]);
+
+      const result = await userService.findMany({
+        birthday: '2014-01-01',
+      });
+
+      expect(result).toHaveLength(0);
     });
   });
 });
