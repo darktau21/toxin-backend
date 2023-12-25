@@ -14,7 +14,7 @@ import {
   IFingerprint,
   IRefreshTokenData,
 } from '~/auth/interfaces';
-import { UserDocument } from '~/user/schemas';
+import { User } from '~/user/schemas';
 import { UserService } from '~/user/user.service';
 
 @Injectable()

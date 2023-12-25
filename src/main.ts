@@ -1,17 +1,24 @@
 import { FastifyCookieOptions, fastifyCookie } from '@fastify/cookie';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import {
+  BadRequestException,
+  ClassSerializerInterceptor,
+  ValidationPipe,
+  VersioningType,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { useContainer } from 'class-validator';
+import { ValidationError, useContainer } from 'class-validator';
 
 import { AppModule } from '~/app/app.module';
+import { HttpClientExceptionFilter } from '~/app/filters';
 import { ResponseWrapperInterceptor } from '~/app/interceptors';
 import { AppConfigService } from '~/app/interfaces';
+import { ParseQueryPipe } from '~/app/pipes';
 
 declare const module: any;
 
