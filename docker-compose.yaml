@@ -23,6 +23,8 @@ services:
       JWT_ACCESS_SECRET: super-secret-jwt-access-token
       JWT_REFRESH_EXP_TIME: 5097600
       COOKIE_SECRET: super-secret-cookie-sign
+      ADMIN_EMAIL: admin@admin.com
+      ADMIN_PASSWORD: Qwerty123
   db:
     image: mongo:7.0
     container_name: toxin-mongo

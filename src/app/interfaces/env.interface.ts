@@ -1,6 +1,8 @@
 import { ConfigService } from '@nestjs/config';
 
 export interface Env {
+  ADMIN_EMAIL: string;
+  ADMIN_PASSWORD: string;
   COOKIE_SECRET: string;
   JWT_ACCESS_EXP_TIME: string;
   JWT_ACCESS_SECRET: string;
