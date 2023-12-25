@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -13,8 +13,10 @@ export enum Roles {
   USER = 'user',
 }
 
-@Schema({ versionKey: false })
+@Schema({ timestamps: true, versionKey: false })
 export class User {
+  _id: mongoose.Types.ObjectId;
+
   @Prop()
   birthday: string;
 
@@ -24,10 +26,13 @@ export class User {
   @Prop({ enum: Genders, type: String })
   gender: Genders;
 
-  @Prop({ default: false, select: false })
-  isBlocked?: boolean;
+  @Prop({ default: false })
+  isBlocked: boolean;
 
-  @Prop()
+  @Prop({ default: false })
+  isDeleted: boolean;
+
+  @Prop({ default: true })
   isSubscriber: boolean;
 
   @Prop()
@@ -36,8 +41,8 @@ export class User {
   @Prop()
   name: string;
 
-  @Prop({ select: false })
-  password?: string;
+  @Prop()
+  password: string;
 
   @Prop({ default: Roles.USER, enum: Roles, type: String })
   role: Roles;
