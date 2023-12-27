@@ -6,6 +6,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { hash } from 'bcrypt';
+import { Types } from 'mongoose';
 import { validate } from 'uuid';
 
 import type { AppConfigService } from '~/app/interfaces';
@@ -26,11 +27,12 @@ describe('AuthService', () => {
   let cacheManager: DeepMocked<RedisCache>;
 
   const mockUser = {
-    _id: '6578b7e174334f130d4401f9',
+    _id: new Types.ObjectId('6578b7e174334f130d4401f9'),
     birthday: '2002-04-13',
     email: 'test13@gmail.com',
     gender: Genders.MALE,
     isBlocked: false,
+    isDeleted: false,
     isSubscriber: false,
     lastName: 'Smith',
     name: 'John',

@@ -56,6 +56,9 @@ describe('UserService', () => {
     jest
       .spyOn(userModel, 'find')
       .mockReturnValue(userQuery as unknown as Query<any, any>);
+    jest
+      .spyOn(userModel, 'findByIdAndUpdate')
+      .mockReturnValue(userQuery as unknown as Query<any, any>);
     jest.spyOn(userQuery, 'lean').mockReturnThis();
   });
 
@@ -131,6 +134,20 @@ describe('UserService', () => {
       });
 
       expect(result).toHaveLength(0);
+    });
+  });
+
+  describe('update', () => {
+    it('should return updated user', async () => {
+      jest
+        .spyOn(userQuery, 'exec')
+        .mockResolvedValue({ ...mockUser, isSubscriber: true });
+
+      const result = await userService.update(mockUser._id.toString(), {
+        isSubscriber: true,
+      });
+
+      expect(result).toEqual({ ...mockUser, isSubscriber: true });
     });
   });
 });
