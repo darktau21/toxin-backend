@@ -45,3 +45,4 @@ jobs:
           eslint_dir: src/
           eslint_args: '-c ../.eslintrc.js'
           prettier_dir: src/
+          commit_message: 'refactor: 💅Fix code style issues with ${linter}'
