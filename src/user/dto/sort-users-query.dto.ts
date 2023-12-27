@@ -1,6 +1,8 @@
+import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsEnum,
+  IsNumber,
   IsOptional,
   IsString,
   MaxLength,
@@ -12,11 +14,11 @@ import type { FilterObject } from '~/app/types';
 import { IsDateFilterObject } from '~/app/decorators';
 import { Genders } from '~/user/schemas';
 
-enum UserSortFields {
+export enum UserSortFields {
   BIRTHDAY = 'birthday',
   CREATED_AT = 'createdAt',
-  REVERSE_BIRTHDAY = '-birthday',
-  REVERSE_CREATED_AT = '-createdAt',
+  REVERSED_BIRTHDAY = '-birthday',
+  REVERSED_CREATED_AT = '-createdAt',
 }
 
 export class SortUsersQueryDto {
@@ -48,10 +50,24 @@ export class SortUsersQueryDto {
   lastName?: string;
 
   @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  limit?: number;
+
+  @IsOptional()
   @IsString()
   @MinLength(2)
   @MaxLength(32)
   name?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  page?: number;
+
+  @IsOptional()
+  @IsString()
+  select?: string;
 
   @IsOptional()
   @IsEnum(UserSortFields)

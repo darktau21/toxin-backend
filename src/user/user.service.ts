@@ -4,10 +4,16 @@ import { InjectModel } from '@nestjs/mongoose';
 import { hash } from 'bcrypt';
 import { Model } from 'mongoose';
 
-import type { SortUsersQueryDto } from '~/user/dto';
-
 import { AppConfigService } from '~/app/interfaces';
-import { clearObject, createFilterQuery } from '~/app/utils';
+import {
+  PaginatedResponse,
+  applyFilters,
+  clearObject,
+  createFilterQuery,
+  includeDeleted,
+  paginate,
+} from '~/app/utils';
+import { SortUsersQueryDto, UserSortFields } from '~/user/dto';
 import { User } from '~/user/schemas';
 
 @Injectable()
@@ -24,7 +30,7 @@ export class UserService {
   async create(userData: Partial<User>): Promise<User> {
     const user = await this.userModel.findOne({ email: userData.email });
     if (user) {
-      throw new ConflictException({ email: 'user already exists' });
+      throw new ConflictException('user already exists');
     }
     const hashedPassword = await this.hashPassword(userData.password);
 
@@ -42,36 +48,61 @@ export class UserService {
     return null;
   }
 
-  async findById(id: string): Promise<User | null> {
+  async findById(
+    id: string,
+    includeRemoved: boolean = false,
+  ): Promise<User | null> {
     return await this.userModel
-      .findOne({ _id: id, isDeleted: false })
+      .findOne({ _id: id, isDeleted: includeDeleted(includeRemoved) })
       .lean()
       .exec();
   }
-  async findMany({
-    birthday,
-    createdAt,
-    sort,
-    ...data
-  }: SortUsersQueryDto): Promise<User[]> {
-    // TODO добавить пагинацию и вынести сортировку в отдельную функцию
-    const query = clearObject({
+
+  async findMany(
+    {
+      birthday,
+      createdAt,
+      limit,
+      page,
+      select,
+      sort,
+      ...data
+    }: SortUsersQueryDto,
+    includeRemoved: boolean = false,
+  ): Promise<PaginatedResponse & { users: User[] }> {
+    const queryData = clearObject({
       ...data,
       birthday: createFilterQuery(birthday),
       createdAt: createFilterQuery(createdAt),
+      isDeleted: includeDeleted(includeRemoved),
     });
 
-    const users = this.userModel.find({ ...query, isDeleted: false });
+    const usersQuery = this.userModel.find(queryData);
 
-    if (sort) {
-      users.sort(sort);
-    }
+    const usersCount = await this.userModel.countDocuments(queryData);
 
-    return users.lean().exec();
+    applyFilters<UserSortFields>(usersQuery, { select, sort });
+    const pagesData = paginate(usersQuery, {
+      documentsCount: usersCount,
+      limit: limit,
+      page: page,
+    });
+
+    const users = await usersQuery.lean().exec();
+    return { ...pagesData, users };
   }
 
-  async findOne(userQuery: Partial<User>): Promise<User | null> {
-    return this.userModel.findOne(userQuery).lean().exec();
+  async findOne(
+    userQuery: Partial<User>,
+    includeRemoved: boolean = false,
+  ): Promise<User | null> {
+    return this.userModel
+      .findOne({
+        ...userQuery,
+        isDeleted: includeDeleted(includeRemoved),
+      })
+      .lean()
+      .exec();
   }
 
   async update(id: string, data: Partial<User>): Promise<User | null> {

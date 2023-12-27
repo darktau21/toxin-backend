@@ -31,8 +31,8 @@ export class PublicUserController {
 
   @Get()
   async getAllUsers(@Query() query: SortUsersQueryDto) {
-    const users = await this.userService.findMany(query);
-    return { users: users.map((user) => new UserResponse(user)) };
+    const { users, ...pageData } = await this.userService.findMany(query);
+    return { users: users.map((user) => new UserResponse(user)), ...pageData };
   }
 
   @Get('me')
