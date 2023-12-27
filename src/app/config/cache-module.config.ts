@@ -10,4 +10,4 @@ export const cacheModuleConfig = CacheModule.registerAsync({
     store: redisStore,
     url: configService.get('REDIS_CONNECTION_STRING', { infer: true }),
   }),
-})
+});

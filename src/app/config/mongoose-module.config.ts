@@ -19,7 +19,10 @@ export const mongooseModuleConfig = MongooseModule.forRootAsync({
         if (!admin) {
           await connection.db.collection('users').insertOne({
             email: configService.get('ADMIN_EMAIL'),
-            password: await hash(configService.get('ADMIN_PASSWORD'), +configService.get('PASSWORD_HASH_ROUNDS', 12)),
+            password: await hash(
+              configService.get('ADMIN_PASSWORD'),
+              +configService.get('PASSWORD_HASH_ROUNDS', 12),
+            ),
             role: Roles.ADMIN,
           });
         }
