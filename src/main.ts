@@ -15,7 +15,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationError, useContainer } from 'class-validator';
 
 import { AppModule } from '~/app/app.module';
-import { HttpClientExceptionFilter } from '~/app/filters';
+import { HttpExceptionFilter } from '~/app/filters';
 import { ResponseWrapperInterceptor } from '~/app/interceptors';
 import { AppConfigService } from '~/app/interfaces';
 import { ParseQueryPipe } from '~/app/pipes';
@@ -33,8 +33,30 @@ async function bootstrap() {
     app.useLogger(console);
   }
 
-  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
-  app.useGlobalInterceptors(new ResponseWrapperInterceptor());
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+  app.useGlobalPipes(
+    new ParseQueryPipe(),
+    new ValidationPipe({
+      exceptionFactory: (validationErrors: ValidationError[]) => {
+        const errors: Record<string, string[]> = {};
+
+        validationErrors.forEach((validationError) => {
+          errors[validationError.property] = Object.values(
+            validationError.constraints,
+          );
+        });
+
+        throw new BadRequestException(errors);
+      },
+      transform: true,
+      whitelist: true,
+    }),
+  );
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector)),
+    new ResponseWrapperInterceptor(),
+  );
 
   await app.register(fastifyCookie, {
     secret: configService.get('COOKIE_SECRET'),
