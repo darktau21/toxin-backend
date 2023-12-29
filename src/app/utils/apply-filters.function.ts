@@ -1,18 +1,13 @@
 import { Query } from 'mongoose';
 
-type FilterParams<TSort extends string> = {
+type FilterParams = {
   select?: string;
-  sort?: TSort;
 };
 
-export function applyFilters<TSort extends string>(
+export function applyFilters(
   query: Query<unknown, unknown>,
-  params: FilterParams<TSort>,
+  params: FilterParams,
 ) {
-  if (params.sort) {
-    query.sort(params.sort);
-  }
-
   if (params.select) {
     query.select(params.select);
   }

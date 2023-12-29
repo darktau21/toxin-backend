@@ -81,11 +81,12 @@ export class UserService {
 
     const usersCount = await this.userModel.countDocuments(queryData);
 
-    applyFilters<UserSortFields>(usersQuery, { select, sort });
-    const pagesData = paginate(usersQuery, {
+    applyFilters(usersQuery, { select });
+    const pagesData = paginate<UserSortFields>(usersQuery, {
       documentsCount: usersCount,
-      limit: limit,
-      page: page,
+      limit,
+      page,
+      sort,
     });
 
     const users = await usersQuery.lean().exec();
