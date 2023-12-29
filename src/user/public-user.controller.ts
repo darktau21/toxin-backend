@@ -1,3 +1,4 @@
+import { CacheInterceptor } from '@nestjs/cache-manager';
 import {
   Body,
   Controller,
@@ -9,6 +10,7 @@ import {
   Patch,
   Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 
 import { CurrentUser } from '~/auth/decorators';
@@ -29,6 +31,7 @@ export class PublicUserController {
   }
 
   @Get()
+  @UseInterceptors(CacheInterceptor)
   async getAllUsers(@Query() query: SortUsersQueryDto) {
     const { users, ...pageData } = await this.userService.findMany(query);
     return { users: users.map((user) => new UserResponse(user)), ...pageData };
@@ -42,6 +45,7 @@ export class PublicUserController {
   }
 
   @Get(':id')
+  @UseInterceptors(CacheInterceptor)
   async getUser(@Param('id') id: string) {
     const user = await this.userService.findById(id);
     return { user: user ? new UserResponse(user) : null };
