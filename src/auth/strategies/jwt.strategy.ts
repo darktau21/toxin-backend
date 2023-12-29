@@ -20,6 +20,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: IAccessTokenData) {
-    return this.authService.validateUser(payload);
+    if (await this.authService.validateUser(payload)) {
+      return payload;
+    }
+
+    return null;
   }
 }

@@ -13,9 +13,8 @@ import {
 
 import { CurrentUser } from '~/auth/decorators';
 import { JwtAuthGuard } from '~/auth/guards';
-import { SortUsersQueryDto } from '~/user/dto';
+import { IAccessTokenData } from '~/auth/interfaces';
 import { UserResponse } from '~/user/responses';
-import { User, type UserDocument } from '~/user/schemas';
 import { UserService } from '~/user/user.service';
 
 @Controller('user')
@@ -25,7 +24,7 @@ export class PublicUserController {
   @Delete('me')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteCurrentUser(@CurrentUser() currentUser: UserDocument) {
+  async deleteCurrentUser(@CurrentUser() currentUser: IAccessTokenData) {
     return this.userService.delete(currentUser.id);
   }
 
@@ -37,8 +36,9 @@ export class PublicUserController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  async getCurrentUser(@CurrentUser() currentUser: User) {
-    return { user: new UserResponse(currentUser) };
+  async getCurrentUser(@CurrentUser() currentUser: IAccessTokenData) {
+    const user = await this.userService.findById(currentUser.id);
+    return { user: new UserResponse(user) };
   }
 
   @Get(':id')
@@ -50,8 +50,7 @@ export class PublicUserController {
   @Patch('me')
   @UseGuards(JwtAuthGuard)
   async updateCurrentUser(
-    @CurrentUser() currentUser: UserDocument,
-    @Body() updateData: Partial<User>,
+    @CurrentUser() currentUser: IAccessTokenData,
   ) {
     const user = await this.userService.update(currentUser.id, updateData);
     return { user: new UserResponse(user) };
