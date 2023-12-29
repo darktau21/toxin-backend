@@ -9,6 +9,7 @@ import { AuthService } from '~/auth/auth.service';
 import { JwtAuthGuard, RoleGuard } from '~/auth/guards';
 import { UnauthorizedGuard } from '~/auth/guards';
 import { JwtStrategy } from '~/auth/strategies';
+import { TokenService } from '~/auth/token.service';
 import { UserModule } from '~/user/user.module';
 
 @Module({
@@ -28,6 +29,7 @@ import { UserModule } from '~/user/user.module';
   ],
   providers: [
     AuthService,
+    TokenService,
     JwtStrategy,
     JwtAuthGuard,
     RoleGuard,
