@@ -53,9 +53,7 @@ export class PublicUserController {
 
   @Patch('me')
   @UseGuards(JwtAuthGuard)
-  async updateCurrentUser(
-    @CurrentUser() currentUser: IAccessTokenData,
-  ) {
+  async updateCurrentUser(@CurrentUser() currentUser: IAccessTokenData) {
     const user = await this.userService.update(currentUser.id, updateData);
     return { user: new UserResponse(user) };
   }
