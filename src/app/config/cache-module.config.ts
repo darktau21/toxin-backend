@@ -8,9 +8,12 @@ import { AppConfigService } from '~/app/interfaces';
 export const cacheModuleConfig = CacheModule.registerAsync({
   inject: [RedisService, ConfigService],
   isGlobal: true,
-  useFactory: async (redisService: RedisService, configService: AppConfigService, ) => ({
+  useFactory: async (
+    redisService: RedisService,
+    configService: AppConfigService,
+  ) => ({
     store: redisInsStore(redisService.getClient(REDIS_CACHE), {
-      ttl: +configService.get('CACHE_TTL') * 1000
+      ttl: +configService.get('CACHE_TTL') * 1000,
     }),
   }),
 });
