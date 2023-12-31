@@ -6,5 +6,10 @@
     "deleteOutDir": true,
     "builder": "swc",
     "typeCheck": true
-  }
+  },
+  "assets": [{
+    "include": "./config*.yaml",
+    "outDir": "dist",
+    "watchAssets": true
+  }]
 }
