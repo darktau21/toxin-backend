@@ -7,33 +7,28 @@ services:
     container_name: toxin-nest
     ports:
       - '3000:3000'
+    command:
+      - npm
+      - run
+      - start:dev
     depends_on:
-      - db
-      - cache
+      - mongo
+      - redis
     volumes:
       - ./:/app
       - /app/node_modules
     environment:
-      MONGO_CONNECTION_STRING: mongodb://db:27017/toxin
-      REDIS_CONNECTION_STRING: redis://:qwerty@cache:6379
-      PASSWORD_HASH_ROUNDS: 12
+      CONFIG_PATH: ./config.yaml
       NODE_ENV: development
       TZ: UTC
-      JWT_ACCESS_EXP_TIME: 300
-      JWT_ACCESS_SECRET: super-secret-jwt-access-token
-      JWT_REFRESH_EXP_TIME: 5097600
-      COOKIE_SECRET: super-secret-cookie-sign
-      ADMIN_EMAIL: admin@admin.com
-      ADMIN_PASSWORD: Qwerty123
-      CACHE_TTL: 15
-  db:
+  mongo:
     image: mongo:7.0
     container_name: toxin-mongo
     ports:
       - "27017:27017"
     volumes:
       - ./data/db:/data/db
-  cache:
+  redis:
     image: redis:7.2
     container_name: toxin-redis
     ports:
@@ -43,6 +38,7 @@ services:
     command: redis-server --save 20 1 --loglevel warning --requirepass qwerty
   s3:
     image: minio/minio:latest
+    container_name: toxin-s3
     command: server --console-address ":9001" /data/
     ports:
       - "9000:9000"
