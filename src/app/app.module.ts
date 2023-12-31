@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
+import { dynamicModules } from 'src/app/modules';
 
-import { CONFIGS } from '~/app/config';
 import { AuthModule } from '~/auth/auth.module';
 import { UserModule } from '~/user/user.module';
 
 @Module({
-  imports: [UserModule, AuthModule, ...CONFIGS],
+  imports: [UserModule, AuthModule, ...dynamicModules],
 })
 export class AppModule {}
