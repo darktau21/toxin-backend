@@ -6,7 +6,7 @@ import type {
 
 import { Observable, map } from 'rxjs';
 
-import type { ResponseWrapper } from '~/app/types/response-wrapper.type';
+import type { ResponseWrapper } from '~/app/types';
 
 export class ResponseWrapperInterceptor<T>
   implements NestInterceptor<T, ResponseWrapper<T>>

@@ -4,10 +4,10 @@ import { JwtService } from '@nestjs/jwt';
 import { RedisService } from '@songkeys/nestjs-redis';
 import { add } from 'date-fns';
 import Redis from 'ioredis';
-import { REDIS_TOKENS } from 'src/app/modules';
 import { v4 } from 'uuid';
 
 import { AppConfigService, SecurityConfig } from '~/app/config';
+import { REDIS_TOKENS } from '~/app/modules';
 import {
   IAccessTokenData,
   IFingerprint,

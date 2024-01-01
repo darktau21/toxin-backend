@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { dynamicModules } from 'src/app/modules';
 
+import { dynamicModules } from '~/app/modules';
 import { AuthModule } from '~/auth/auth.module';
 import { UserModule } from '~/user/user.module';
 
