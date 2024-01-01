@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 import { dynamicModules } from '~/app/modules';
 import { AuthModule } from '~/auth/auth.module';
@@ -6,5 +8,6 @@ import { UserModule } from '~/user/user.module';
 
 @Module({
   imports: [UserModule, AuthModule, ...dynamicModules],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

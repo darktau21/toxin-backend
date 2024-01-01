@@ -26,7 +26,9 @@ declare const module: any;
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter(),
+    new FastifyAdapter({
+      trustProxy: '127.0.0.1',
+    }),
   );
 
   const configService: AppConfigService = app.get(ConfigService);
