@@ -108,9 +108,17 @@ export class UserService {
       .exec();
   }
 
-  async update(id: string, data: Partial<User>): Promise<User | null> {
+  async update(
+    id: string,
+    data: Partial<User>,
+    includeRemoved: boolean = false,
+  ): Promise<User | null> {
     return this.userModel
-      .findByIdAndUpdate(id, data, { new: true })
+      .findOneAndUpdate(
+        { _id: id, isDeleted: includeDeleted(includeRemoved) },
+        data,
+        { new: true },
+      )
       .lean()
       .exec();
   }

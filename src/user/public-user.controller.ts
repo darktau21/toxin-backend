@@ -16,6 +16,7 @@ import {
 import { CurrentUser } from '~/auth/decorators';
 import { JwtAuthGuard } from '~/auth/guards';
 import { IAccessTokenData } from '~/auth/interfaces';
+import { SortUsersQueryDto, UpdateSelfUserDto } from '~/user/dto';
 import { UserResponse } from '~/user/responses';
 import { UserService } from '~/user/user.service';
 
@@ -53,7 +54,10 @@ export class PublicUserController {
 
   @Patch('me')
   @UseGuards(JwtAuthGuard)
-  async updateCurrentUser(@CurrentUser() currentUser: IAccessTokenData) {
+  async updateCurrentUser(
+    @CurrentUser() currentUser: IAccessTokenData,
+    @Body() updateData: UpdateSelfUserDto,
+  ) {
     const user = await this.userService.update(currentUser.id, updateData);
     return { user: new UserResponse(user) };
   }
