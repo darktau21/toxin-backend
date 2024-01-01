@@ -1,0 +1,32 @@
+db:
+  mongo:
+    host: 'mongo'
+    port: 27017
+    database: 'toxin'
+    user: ''
+    password: ''
+
+  redis:
+    host: 'redis'
+    port: 6379
+    database: ''
+    user: ''
+    password: 'qwerty'
+
+security:
+  passwordHashRounds: 12
+  tokens:
+    accessExpTime: 300
+    refreshExpTime: 5097600
+    accessSecret: 'super-secret-jwt-access-token'
+  cookieSecret: 'super-secret-cookie-sign'
+  secureCookie: false
+
+adminAccount:
+  email: 'admin@admin.com'
+  password: 'Qwerty123'
+
+requests:
+  cacheTtl: 15
+  throttle: 5
+  limit: 4

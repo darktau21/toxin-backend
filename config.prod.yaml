@@ -1,0 +1,32 @@
+db:
+  mongo:
+    host: 'srv-captain--mongodb'
+    port: 27017
+    database: 'toxin'
+    user: 'jfdlskfjjkflds'
+    password: 'KHdfsihfdisu392473FDUY3467'
+
+  redis:
+    host: 'srv-captain--redis'
+    port: 6379
+    database: ''
+    user: ''
+    password: 'IKLgpofdjsei32432rio3yrwy83yr8wrewyr'
+
+security:
+  passwordHashRounds: 12
+  tokens:
+    accessExpTime: 300
+    refreshExpTime: 5097600
+    accessSecret: 'super-secret-jwt-access-token'
+  cookieSecret: 'super-secret-cookie-sign'
+  secureCookie: false
+
+adminAccount:
+  email: 'admin@admin.com'
+  password: 'Qwerty123'
+
+requests:
+  cacheTtl: 15
+  throttle: 5
+  limit: 4
