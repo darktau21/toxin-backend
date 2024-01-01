@@ -50,6 +50,7 @@ async function bootstrap() {
 
         throw new BadRequestException(errors);
       },
+      forbidNonWhitelisted: true,
       transform: true,
       whitelist: true,
     }),
