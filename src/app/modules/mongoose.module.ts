@@ -46,7 +46,7 @@ export const mongooseModule = MongooseModule.forRootAsync({
       uri:
         !mongo.user || !mongo.password
           ? `mongodb://${mongo.host}:${mongo.port}/${mongo.database}`
-          : `mongodb://${mongo.user}:${mongo.password}@${mongo.host}:${mongo.port}/${mongo.database}`,
+          : `mongodb://${mongo.user}:${mongo.password}@${mongo.host}:${mongo.port}/${mongo.database}?authSource=admin`,
     };
   },
 });
