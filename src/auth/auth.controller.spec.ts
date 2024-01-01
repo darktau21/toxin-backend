@@ -7,7 +7,6 @@ import { Test } from '@nestjs/testing';
 import type { LoginDto, RegisterDto } from '~/auth/dto';
 import type { IRefreshTokenData } from '~/auth/interfaces';
 
-import { AppConfigService } from '~/app/interfaces';
 import { AuthController } from '~/auth/auth.controller';
 import { AuthService } from '~/auth/auth.service';
 import { Genders } from '~/user/schemas';

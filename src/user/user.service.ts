@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { hash } from 'bcrypt';
 import { Model } from 'mongoose';
 
-import { AppConfigService } from '~/app/interfaces';
+import { AppConfigService, SecurityConfig } from '~/app/config';
 import {
   PaginatedResponse,
   applyFilters,
@@ -24,7 +24,9 @@ export class UserService {
   ) {}
 
   private async hashPassword(password: string) {
-    return hash(password, +this.configService.get('PASSWORD_HASH_ROUNDS', 12));
+    const { passwordHashRounds } =
+      this.configService.get<SecurityConfig>('security');
+    return hash(password, passwordHashRounds);
   }
 
   async create(userData: Partial<User>): Promise<User> {

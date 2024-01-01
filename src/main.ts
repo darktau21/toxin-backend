@@ -13,11 +13,12 @@ import {
 } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationError, useContainer } from 'class-validator';
+import * as process from 'process';
 
 import { AppModule } from '~/app/app.module';
+import { AppConfigService, SecurityConfig } from '~/app/config';
 import { HttpExceptionFilter } from '~/app/filters';
 import { ResponseWrapperInterceptor } from '~/app/interceptors';
-import { AppConfigService } from '~/app/interfaces';
 import { ParseQueryPipe } from '~/app/pipes';
 
 declare const module: any;
@@ -29,7 +30,7 @@ async function bootstrap() {
   );
 
   const configService: AppConfigService = app.get(ConfigService);
-  if (configService.get('NODE_ENV', { infer: true }) === 'development') {
+  if (process.env.NODE_ENV === 'development') {
     app.useLogger(console);
   }
 
@@ -58,8 +59,10 @@ async function bootstrap() {
     new ResponseWrapperInterceptor(),
   );
 
+  const { cookieSecret } = configService.get<SecurityConfig>('security');
+
   await app.register(fastifyCookie, {
-    secret: configService.get('COOKIE_SECRET'),
+    secret: cookieSecret,
   } satisfies FastifyCookieOptions);
 
   app.enableVersioning({ defaultVersion: '1', type: VersioningType.URI });

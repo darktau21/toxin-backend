@@ -9,7 +9,6 @@ import { hash } from 'bcrypt';
 import { Types } from 'mongoose';
 import { validate } from 'uuid';
 
-import type { AppConfigService } from '~/app/interfaces';
 import type {
   IAccessTokenData,
   IFingerprint,

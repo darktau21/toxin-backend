@@ -9,9 +9,7 @@ import {
   validate,
 } from 'class-validator';
 
-import type { FilterObject } from '~/app/types/filter-object.type';
-
-class FilterObjectDate {
+export class FilterObjectDate {
   @IsOptional()
   @IsDateString()
   gt?: string;
@@ -34,11 +32,14 @@ export class IsDateFilterQueryConstraint
     return `${validationArguments.property} should be a valid ISO Date string or object`;
   }
 
-  async validate(value: FilterObject<string>): Promise<boolean> {
+  async validate(value: FilterObjectDate | string): Promise<boolean> {
     if (typeof value === 'string') {
       return isDateString(value);
     }
-    const errors = await validate(plainToInstance(FilterObjectDate, value));
+    const errors = await validate(plainToInstance(FilterObjectDate, value), {
+      forbidNonWhitelisted: true,
+      whitelist: true,
+    });
     return !errors.length;
   }
 }

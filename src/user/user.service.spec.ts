@@ -5,14 +5,12 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model, Query, Types } from 'mongoose';
 
-import type { AppConfigService } from '~/app/interfaces';
-
 import { Genders, Roles, User, type UserDocument } from '~/user/schemas';
 import { UserService } from '~/user/user.service';
 
 describe('UserService', () => {
   let userService: UserService;
-  let configService: AppConfigService;
+  let configService: ConfigService;
   let userModel: DeepMocked<Model<User>>;
   const userQuery = {
     exec: jest.fn(),

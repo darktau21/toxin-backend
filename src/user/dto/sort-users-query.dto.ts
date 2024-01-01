@@ -9,8 +9,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-import type { FilterObject } from '~/app/types';
-
+import { FilterObjectDate, FilterObjectNumber } from '~/app/constraints';
 import { IsDateFilterObject } from '~/app/decorators';
 import { Genders } from '~/user/schemas';
 
@@ -24,11 +23,11 @@ export enum UserSortFields {
 export class SortUsersQueryDto {
   @IsOptional()
   @IsDateFilterObject()
-  birthday?: FilterObject<string>;
+  birthday?: FilterObjectDate | string;
 
   @IsOptional()
   @IsDateFilterObject()
-  createdAt?: FilterObject<string>;
+  createdAt?: FilterObjectNumber | number;
 
   @IsOptional()
   @IsString()

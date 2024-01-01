@@ -1,6 +1,6 @@
-import { plainToInstance } from 'class-transformer';
+import { Type, plainToInstance } from 'class-transformer';
 import {
-  IsNumberString,
+  IsNumber,
   IsOptional,
   ValidatorConstraint,
   type ValidatorConstraintInterface,
@@ -8,32 +8,37 @@ import {
   validate,
 } from 'class-validator';
 
-import type { FilterObject } from '~/app/types/filter-object.type';
-
-class FilterObjectNumber {
+export class FilterObjectNumber {
   @IsOptional()
-  @IsNumberString()
-  gt?: string;
+  @IsNumber()
+  @Type(() => Number)
+  gt?: number;
   @IsOptional()
-  @IsNumberString()
-  gte?: string;
+  @IsNumber()
+  @Type(() => Number)
+  gte?: number;
   @IsOptional()
-  @IsNumberString()
-  lt?: string;
+  @IsNumber()
+  @Type(() => Number)
+  lt?: number;
   @IsOptional()
-  @IsNumberString()
-  lte?: string;
+  @IsNumber()
+  @Type(() => Number)
+  lte?: number;
 }
 
 @ValidatorConstraint({ async: true, name: 'isNumberFilterObject' })
 export class IsNumberFilterQueryConstraint
   implements ValidatorConstraintInterface
 {
-  async validate(value: FilterObject<number>): Promise<boolean> {
+  async validate(value: FilterObjectNumber | number): Promise<boolean> {
     if (typeof value === 'string') {
       return isNumberString(value);
     }
-    const errors = await validate(plainToInstance(FilterObjectNumber, value));
+    const errors = await validate(plainToInstance(FilterObjectNumber, value), {
+      forbidNonWhitelisted: true,
+      whitelist: true,
+    });
     return !errors.length;
   }
 }

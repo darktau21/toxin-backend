@@ -13,7 +13,7 @@ import { ConfigService } from '@nestjs/config';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { FastifyReply } from 'fastify';
 
-import { AppConfigService } from '~/app/interfaces';
+import { AppConfigService, SecurityConfig } from '~/app/config';
 import { AuthService } from '~/auth/auth.service';
 import { Cookie, Fingerprint } from '~/auth/decorators';
 import { LoginDto, RegisterDto } from '~/auth/dto';
@@ -32,12 +32,14 @@ export class AuthController {
     tokens: Awaited<ReturnType<typeof this.authService.login>>,
     res: FastifyReply,
   ) {
+    const { secureCookie } = this.configService.get<SecurityConfig>('security');
+
     res.setCookie(REFRESH_TOKEN_COOKIE, tokens.refreshToken, {
       expires: new Date(tokens.refreshTokenData.expiresIn),
       httpOnly: true,
       path: '/v1/auth',
       sameSite: 'lax',
-      secure: this.configService.get('NODE_ENV') === 'production',
+      secure: secureCookie,
     });
   }
 
@@ -61,12 +63,14 @@ export class AuthController {
     @Res({ passthrough: true }) res: FastifyReply,
     @Cookie(REFRESH_TOKEN_COOKIE) refreshToken: string,
   ): Promise<null> {
+    const { secureCookie } = this.configService.get<SecurityConfig>('security');
+
     await this.authService.logout(refreshToken);
     res.clearCookie(REFRESH_TOKEN_COOKIE, {
       httpOnly: true,
       path: '/v1/auth',
       sameSite: 'lax',
-      secure: this.configService.get('NODE_ENV') === 'production',
+      secure: secureCookie,
     });
     return null;
   }

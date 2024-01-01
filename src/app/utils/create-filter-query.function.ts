@@ -1,6 +1,8 @@
-import type { FilterObject } from '~/app/types';
+import { FilterObjectDate, FilterObjectNumber } from '~/app/constraints';
 
-export function createFilterQuery<T>(query?: FilterObject<T>) {
+export function createFilterQuery(
+  query?: FilterObjectDate | FilterObjectNumber | number | string,
+) {
   if (!query) return;
 
   let result = query;

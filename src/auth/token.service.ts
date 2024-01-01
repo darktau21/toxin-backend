@@ -4,10 +4,10 @@ import { JwtService } from '@nestjs/jwt';
 import { RedisService } from '@songkeys/nestjs-redis';
 import { add } from 'date-fns';
 import Redis from 'ioredis';
+import { REDIS_TOKENS } from 'src/app/modules';
 import { v4 } from 'uuid';
 
-import { REDIS_TOKENS } from '~/app/config';
-import { AppConfigService } from '~/app/interfaces';
+import { AppConfigService, SecurityConfig } from '~/app/config';
 import {
   IAccessTokenData,
   IFingerprint,
@@ -35,8 +35,11 @@ export class TokenService {
     userId: string,
     fingerprint: IFingerprint,
   ) {
+    const { tokens: config } =
+      this.configService.get<SecurityConfig>('security');
+
     const token = v4();
-    const ttl = +this.configService.get('JWT_REFRESH_EXP_TIME', 5_097_600);
+    const ttl = config.refreshExpTime;
     const tokenData: IRefreshTokenData = {
       expiresIn: add(new Date(), { seconds: ttl }).getTime(),
       fingerprint,
