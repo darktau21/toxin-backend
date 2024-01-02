@@ -14,7 +14,7 @@ const configLoader = <T>(configPath: string) => {
   return (selector: (config: T) => unknown) => {
     if (!cache) {
       cache = yaml.load(
-        fs.readFileSync(path.resolve(__dirname, configPath), 'utf-8'),
+        fs.readFileSync(path.resolve(process.cwd(), configPath), 'utf-8'),
       ) as T;
       const validationResult = validateSync(plainToInstance(Config, cache));
 
