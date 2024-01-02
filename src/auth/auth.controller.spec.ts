@@ -14,7 +14,7 @@ import { Genders } from '~/user/schemas';
 describe('AuthController', () => {
   let authController: AuthController;
   let authService: DeepMocked<AuthService>;
-  let configService: DeepMocked<AppConfigService>;
+  let configService: DeepMocked<ConfigService>;
 
   const mockLoginDto: LoginDto = {
     email: 'test@test.com',
@@ -137,7 +137,7 @@ describe('AuthController', () => {
   });
 
   describe('register', () => {
-    it('should call register auth service method with provided params', async () => {
+    it('should call modules auth service method with provided params', async () => {
       await authController.register(
         mockRegisterDto,
         mockFingerprint,
@@ -147,7 +147,7 @@ describe('AuthController', () => {
       expect(authService.register).toHaveBeenCalledWith(mockRegisterDto);
     });
 
-    it('should call register auth service method with provided params', async () => {
+    it('should call modules auth service method with provided params', async () => {
       await authController.register(
         mockRegisterDto,
         mockFingerprint,

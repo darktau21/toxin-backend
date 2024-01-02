@@ -30,3 +30,6 @@ requests:
   cacheTtl: 15
   throttle: 5
   limit: 4
+
+mail:
+

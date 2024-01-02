@@ -1,4 +1,4 @@
-import type { RedisCache } from 'cache-manager-redis-yet';
+import type { RedisCache } from 'cache-manager-ioredis-yet';
 
 import { type DeepMocked, createMock } from '@golevelup/ts-jest';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -22,7 +22,7 @@ import { UserService } from '~/user/user.service';
 describe('AuthService', () => {
   let authService: AuthService;
   let userService: DeepMocked<UserService>;
-  let configService: DeepMocked<AppConfigService>;
+  let configService: DeepMocked<ConfigService>;
   let cacheManager: DeepMocked<RedisCache>;
 
   const mockUser = {

@@ -7,6 +7,7 @@ services:
     container_name: toxin-nest
     ports:
       - '3000:3000'
+      - '25:25'
     command:
       - npm
       - run

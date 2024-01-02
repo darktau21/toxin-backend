@@ -12,17 +12,22 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { MailerService } from '@nestjs-modules/mailer';
 
 import { CurrentUser } from '~/auth/decorators';
 import { JwtAuthGuard } from '~/auth/guards';
 import { IAccessTokenData } from '~/auth/interfaces';
+import { MailService } from '~/mail/mail.service';
 import { SortUsersQueryDto, UpdateSelfUserDto } from '~/user/dto';
 import { UserResponse } from '~/user/responses';
 import { UserService } from '~/user/user.service';
 
 @Controller('user')
 export class PublicUserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly mailService: MailService,
+  ) {}
 
   @Delete('me')
   @UseGuards(JwtAuthGuard)
@@ -35,6 +40,7 @@ export class PublicUserController {
   @UseInterceptors(CacheInterceptor)
   async getAllUsers(@Query() query: SortUsersQueryDto) {
     const { users, ...pageData } = await this.userService.findMany(query);
+    await this.mailService.sendTest();
     return { users: users.map((user) => new UserResponse(user)), ...pageData };
   }
 
