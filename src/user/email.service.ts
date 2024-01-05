@@ -9,9 +9,9 @@ import { ConfigService } from '@nestjs/config';
 import { RedisService } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 
-import { AppConfigService, MailerConfig } from '~/app/config';
 import { REDIS_EMAILS } from '~/app/modules';
 import { asyncRandomBytes } from '~/app/utils';
+import { AppConfigService } from '~/config/app-config.service';
 import { MailService } from '~/mail/mail.service';
 
 import { UserService } from './user.service';
@@ -25,7 +25,6 @@ export class EmailService {
   constructor(
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
-    @Inject(ConfigService)
     private readonly configService: AppConfigService,
     private readonly mailService: MailService,
     redis: RedisService,
@@ -35,6 +34,7 @@ export class EmailService {
 
   async confirmEmail(id: string, code: string) {
     const confirmationCode = await this.emailsDb.get(id);
+    await this.emailsDb.del(id);
 
     if (!confirmationCode) {
       throw new GoneException('unknown confirmation code');
@@ -54,7 +54,7 @@ export class EmailService {
       await asyncRandomBytes(CONFIRMATION_CODE_SIZE / 2)
     ).toString('hex');
 
-    const { confirmationTime } = this.configService.get<MailerConfig>('mail');
+    const { confirmationTime } = this.configService.getMail();
 
     await this.emailsDb.set(id, confirmationCode, 'EX', confirmationTime);
 

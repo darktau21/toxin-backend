@@ -1,24 +1,16 @@
-import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { hash } from 'bcrypt';
 import { Connection } from 'mongoose';
 
-import {
-  AdminAccountConfig,
-  AppConfigService,
-  DbConfig,
-  SecurityConfig,
-} from '~/app/config';
+import { AppConfigService } from '~/config/app-config.service';
 import { Roles } from '~/user/schemas';
 
 export const mongooseModule = MongooseModule.forRootAsync({
-  inject: [ConfigService],
+  inject: [AppConfigService],
   useFactory: (configService: AppConfigService) => {
-    const { mongo }: { mongo: DbConfig } = configService.get('db');
-    const adminAccountConfig =
-      configService.get<AdminAccountConfig>('adminAccount');
-    const { passwordHashRounds } =
-      configService.get<SecurityConfig>('security');
+    const { mongo } = configService.getDb();
+    const adminAccountConfig = configService.getAdminAccount();
+    const { passwordHashRounds } = configService.getSecurity();
     return {
       connectionFactory: async (connection: Connection) => {
         // eslint-disable-next-line @typescript-eslint/no-var-requires

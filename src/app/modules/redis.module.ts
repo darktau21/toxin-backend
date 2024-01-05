@@ -1,16 +1,15 @@
-import { ConfigService } from '@nestjs/config';
 import { RedisModule } from '@songkeys/nestjs-redis';
 
-import { AppConfigService, DbConfig } from '~/app/config';
+import { AppConfigService } from '~/config/app-config.service';
 
 export const REDIS_CACHE = 'cacheDB';
 export const REDIS_TOKENS = 'tokensDB';
 export const REDIS_EMAILS = 'emailsDB';
 
 export const redisModule = RedisModule.forRootAsync({
-  inject: [ConfigService],
+  inject: [AppConfigService],
   useFactory: (configService: AppConfigService) => {
-    const { redis }: { redis: DbConfig } = configService.get('db');
+    const { redis } = configService.getDb();
     return {
       config: [
         {

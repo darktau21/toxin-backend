@@ -9,9 +9,9 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-import { TokensConfig } from './tokens-config.schema';
+import { TokensConfigSchema } from './tokens-config.schema';
 
-export class SecurityConfig {
+export class SecurityConfigSchema {
   @IsString()
   @MinLength(8)
   cookieSecret: string;
@@ -26,5 +26,5 @@ export class SecurityConfig {
   secureCookie: boolean;
 
   @ValidateNested()
-  tokens: TokensConfig;
+  tokens: TokensConfigSchema;
 }

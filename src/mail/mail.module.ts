@@ -1,28 +1,26 @@
 import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { MailerModule, MailerOptions } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { resolve } from 'path';
 
-import { AppConfigService } from '~/app/config';
-import { MailerConfig } from '~/app/config';
+import { AppConfigService } from '~/config/app-config.service';
 import { MailService } from '~/mail/mail.service';
 
 @Module({
   exports: [MailService],
   imports: [
     MailerModule.forRootAsync({
-      inject: [ConfigService],
+      inject: [AppConfigService],
       useFactory: (configService: AppConfigService): MailerOptions => {
         console.log(resolve(__dirname, 'mail', 'templates'));
-        const mailConfig = configService.get<MailerConfig>('mail');
+        const mailConfig = configService.getMail();
         return {
           defaults: {
             from: 'Toxin',
           },
           template: {
-            dir: resolve(__dirname, 'mail', 'templates'),
             adapter: new HandlebarsAdapter(),
+            dir: resolve(__dirname, 'mail', 'templates'),
           },
           transport: {
             auth: {

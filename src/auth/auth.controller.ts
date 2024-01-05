@@ -4,35 +4,33 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Inject,
   Post,
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { FastifyReply } from 'fastify';
 
-import { AppConfigService, SecurityConfig } from '~/app/config';
 import { AuthService } from '~/auth/auth.service';
 import { Cookie, Fingerprint } from '~/auth/decorators';
 import { LoginDto, RegisterDto } from '~/auth/dto';
 import { UnauthorizedGuard } from '~/auth/guards';
 import { IFingerprint, REFRESH_TOKEN_COOKIE } from '~/auth/interfaces';
+import { AppConfigService } from '~/config/app-config.service';
 
 @ApiTags('Авторизация')
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    @Inject(ConfigService) private readonly configService: AppConfigService,
+    private readonly configService: AppConfigService,
   ) {}
 
   private setCookieToken(
     tokens: Awaited<ReturnType<typeof this.authService.login>>,
     res: FastifyReply,
   ) {
-    const { secureCookie } = this.configService.get<SecurityConfig>('security');
+    const { secureCookie } = this.configService.getSecurity();
 
     res.setCookie(REFRESH_TOKEN_COOKIE, tokens.refreshToken, {
       expires: new Date(tokens.refreshTokenData.expiresIn),
@@ -63,7 +61,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: FastifyReply,
     @Cookie(REFRESH_TOKEN_COOKIE) refreshToken: string,
   ): Promise<null> {
-    const { secureCookie } = this.configService.get<SecurityConfig>('security');
+    const { secureCookie } = this.configService.getSecurity();
 
     await this.authService.logout(refreshToken);
     res.clearCookie(REFRESH_TOKEN_COOKIE, {

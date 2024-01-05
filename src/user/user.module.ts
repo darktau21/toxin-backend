@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { MailModule } from '~/mail/mail.module';
+import { RoleGuard } from '~/user/guards';
 import { PublicUserController } from '~/user/public-user.controller';
 import { User, UserSchema } from '~/user/schemas';
 import { UserService } from '~/user/user.service';
@@ -16,6 +17,6 @@ import { EmailService } from './email.service';
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MailModule,
   ],
-  providers: [UserService, EmailService],
+  providers: [UserService, EmailService, RoleGuard],
 })
 export class UserModule {}

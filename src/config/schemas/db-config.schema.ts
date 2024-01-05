@@ -1,6 +1,6 @@
 import { IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 
-export class DbConfig {
+export class DbConfigSchema {
   @IsOptional()
   database?: string;
 

@@ -5,7 +5,6 @@ import {
   ValidationPipe,
   VersioningType,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
 import {
   FastifyAdapter,
@@ -16,10 +15,11 @@ import { ValidationError, useContainer } from 'class-validator';
 import * as process from 'process';
 
 import { AppModule } from '~/app/app.module';
-import { AppConfigService, SecurityConfig } from '~/app/config';
 import { HttpExceptionFilter } from '~/app/filters';
 import { ResponseWrapperInterceptor } from '~/app/interceptors';
 import { ParseQueryPipe } from '~/app/pipes';
+
+import { AppConfigService } from './config/app-config.service';
 
 declare const module: any;
 
@@ -31,7 +31,7 @@ async function bootstrap() {
     }),
   );
 
-  const configService: AppConfigService = app.get(ConfigService);
+  const configService: AppConfigService = app.get(AppConfigService);
   if (process.env.NODE_ENV === 'development') {
     app.useLogger(console);
   }
@@ -62,7 +62,7 @@ async function bootstrap() {
     new ResponseWrapperInterceptor(),
   );
 
-  const { cookieSecret } = configService.get<SecurityConfig>('security');
+  const { cookieSecret } = configService.getSecurity();
 
   await app.register(fastifyCookie, {
     secret: cookieSecret,

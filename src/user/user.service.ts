@@ -4,12 +4,10 @@ import {
   Injectable,
   forwardRef,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { hash } from 'bcrypt';
 import { Model } from 'mongoose';
 
-import { AppConfigService, SecurityConfig } from '~/app/config';
 import {
   PaginatedResponse,
   applyFilters,
@@ -18,6 +16,7 @@ import {
   includeDeleted,
   paginate,
 } from '~/app/utils';
+import { AppConfigService } from '~/config/app-config.service';
 import { SortUsersQueryDto, UserSortFields } from '~/user/dto';
 import { User } from '~/user/schemas';
 
@@ -27,14 +26,13 @@ import { EmailService } from './email.service';
 export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
-    @Inject(ConfigService) private readonly configService: AppConfigService,
     @Inject(forwardRef(() => EmailService))
     private readonly emailService: EmailService,
+    private readonly configService: AppConfigService,
   ) {}
 
   private async hashPassword(password: string) {
-    const { passwordHashRounds } =
-      this.configService.get<SecurityConfig>('security');
+    const { passwordHashRounds } = this.configService.getSecurity();
     return hash(password, passwordHashRounds);
   }
 

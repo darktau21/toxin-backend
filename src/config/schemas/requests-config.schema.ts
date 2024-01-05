@@ -1,6 +1,6 @@
 import { IsInt, IsNumber, Min } from 'class-validator';
 
-export class RequestsConfig {
+export class RequestsConfigSchema {
   @IsNumber()
   @Min(0)
   @IsInt()

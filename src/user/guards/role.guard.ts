@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { FastifyRequest } from 'fastify';
 
-import { ROLES_METADATA_KEY } from '~/auth/decorators';
+import { ROLES_METADATA_KEY } from '~/user/decorators';
 import { Roles, UserDocument } from '~/user/schemas';
 
 @Injectable()

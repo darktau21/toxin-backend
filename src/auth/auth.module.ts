@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
-import { AppConfigService, SecurityConfig } from '~/app/config';
 import { AuthController } from '~/auth/auth.controller';
 import { AuthService } from '~/auth/auth.service';
-import { JwtAuthGuard, RoleGuard, UnauthorizedGuard } from '~/auth/guards';
+import { JwtAuthGuard, UnauthorizedGuard } from '~/auth/guards';
 import { JwtStrategy } from '~/auth/strategies';
 import { TokenService } from '~/auth/token.service';
+import { AppConfigService } from '~/config/app-config.service';
 import { UserModule } from '~/user/user.module';
 
 @Module({
@@ -17,9 +16,9 @@ import { UserModule } from '~/user/user.module';
     UserModule,
     PassportModule,
     JwtModule.registerAsync({
-      inject: [ConfigService],
+      inject: [AppConfigService],
       useFactory: (configService: AppConfigService) => {
-        const { tokens } = configService.get<SecurityConfig>('security');
+        const { tokens } = configService.getSecurity();
 
         return {
           secret: tokens.accessSecret,
@@ -35,7 +34,6 @@ import { UserModule } from '~/user/user.module';
     TokenService,
     JwtStrategy,
     JwtAuthGuard,
-    RoleGuard,
     UnauthorizedGuard,
   ],
 })

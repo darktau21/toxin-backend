@@ -1,6 +1,6 @@
 import { IsInt, IsNumber, IsString, Min, MinLength } from 'class-validator';
 
-export class TokensConfig {
+export class TokensConfigSchema {
   @IsNumber()
   @IsInt()
   @Min(10)

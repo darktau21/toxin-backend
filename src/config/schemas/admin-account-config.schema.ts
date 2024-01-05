@@ -1,6 +1,6 @@
 import { IsEmail, IsStrongPassword, MaxLength } from 'class-validator';
 
-export class AdminAccountConfig {
+export class AdminAccountConfigSchema {
   @IsEmail()
   email: string;
 

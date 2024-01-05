@@ -6,7 +6,7 @@ import * as yaml from 'js-yaml';
 import * as path from 'path';
 import * as process from 'process';
 
-import { Config } from '~/app/config';
+import { ConfigSchema } from '~/config/schemas';
 
 const configLoader = <T>(configPath: string) => {
   let cache: T;
@@ -16,7 +16,9 @@ const configLoader = <T>(configPath: string) => {
       cache = yaml.load(
         fs.readFileSync(path.resolve(process.cwd(), configPath), 'utf-8'),
       ) as T;
-      const validationResult = validateSync(plainToInstance(Config, cache));
+      const validationResult = validateSync(
+        plainToInstance(ConfigSchema, cache),
+      );
 
       if (validationResult.length !== 0) {
         const logger = new Logger('ConfigLoader');
@@ -29,4 +31,6 @@ const configLoader = <T>(configPath: string) => {
   };
 };
 
-export const configSelector = configLoader<Config>(process.env.CONFIG_PATH);
+export const configSelector = configLoader<ConfigSchema>(
+  process.env.CONFIG_PATH,
+);

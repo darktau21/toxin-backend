@@ -6,13 +6,13 @@ import { add } from 'date-fns';
 import Redis from 'ioredis';
 import { v4 } from 'uuid';
 
-import { AppConfigService, SecurityConfig } from '~/app/config';
 import { REDIS_TOKENS } from '~/app/modules';
 import {
   IAccessTokenData,
   IFingerprint,
   IRefreshTokenData,
 } from '~/auth/interfaces';
+import { AppConfigService } from '~/config/app-config.service';
 import { User } from '~/user/schemas';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class TokenService {
   private tokensDb: Redis;
 
   constructor(
-    @Inject(ConfigService) private readonly configService: AppConfigService,
+    private readonly configService: AppConfigService,
     private readonly jwtService: JwtService,
     redis: RedisService,
   ) {
@@ -35,8 +35,7 @@ export class TokenService {
     userId: string,
     fingerprint: IFingerprint,
   ) {
-    const { tokens: config } =
-      this.configService.get<SecurityConfig>('security');
+    const { tokens: config } = this.configService.getSecurity();
 
     const token = v4();
     const ttl = config.refreshExpTime;

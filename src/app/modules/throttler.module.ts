@@ -1,12 +1,11 @@
-import { ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 
-import { AppConfigService, RequestsConfig } from '~/app/config';
+import { AppConfigService } from '~/config/app-config.service';
 
 export const throttlerModuleConfig = ThrottlerModule.forRootAsync({
-  inject: [ConfigService],
+  inject: [AppConfigService],
   useFactory: (configService: AppConfigService) => {
-    const { limit, throttle } = configService.get<RequestsConfig>('requests');
+    const { limit, throttle } = configService.getRequests();
     return [
       {
         limit,

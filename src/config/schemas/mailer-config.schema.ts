@@ -1,6 +1,6 @@
 import { IsBoolean, IsInt, IsNumber, IsString } from 'class-validator';
 
-export class MailerConfig {
+export class MailerConfigSchema {
   @IsString()
   host: string;
 
