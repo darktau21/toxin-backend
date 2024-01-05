@@ -1,0 +1,125 @@
+@url = http://localhost:3000/v1
+
+###
+# @name register
+POST {{url}}/auth/register HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+
+{
+    "birthday": "2002-04-10",
+    "email": "naumenkokirill466@gmail.com",
+    "gender": "male",
+    "isSubscriber": "false",
+    "lastName": "efwfsdf",
+    "name": "John",
+    "password": "Qwerty123"
+}
+###
+@accessToken = {{register.response.body.$.data.accessToken}}
+###
+
+###
+# @name login
+POST {{url}}/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "naumenkokirill466@gmail.com",
+  "password": "Qwerty123"
+}
+###
+@accessToken = {{login.response.body.$.data.accessToken}}
+###
+
+###
+# @name loginAdmin
+POST {{url}}/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "admin@admin.com",
+  "password": "Qwerty123"
+}
+###
+@accessToken = {{loginAdmin.response.body.$.data.accessToken}}
+###
+
+###
+# @name Logout
+GET {{url}}/auth/logout
+Accept: application/json
+###
+
+###
+# @name refresh
+GET {{url}}/auth/refresh
+Accept: application/json
+###
+@accessToken = {{refresh.response.body.$.data.accessToken}}
+###
+
+###
+# @name getMe
+GET {{url}}/user/me
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+###
+
+###
+# @name getUsers
+GET {{url}}/user
+    # ?select=gender
+    # &birthday[gte]=2002-04-08
+    # &sort=-birthday
+
+Accept: application/json
+###
+
+###
+# @name getSingleUser
+GET {{url}}/user/6590a246e8f5b79f07021f26
+Accept: application/json
+###
+
+###
+# @name updateMe
+PATCH {{url}}/user/me
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "gender": "female",
+  "email": "knaumenko@sfedu.ru"
+}
+###
+
+###
+# @name DeleteMe
+DELETE  {{url}}/user/me
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+###
+
+###
+# @name restoreCurrentUser
+GET {{url}}/user/me/restore
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+###
+
+###
+# @name resendConfirmationMail
+GET {{url}}/email/resendConfirmation
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+###
+
+###
+# @name confirmEmail
+GET {{url}}/email/59992fae9480429216e6bd27a09df197c735f7063044436d263872e54547da41
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+###
