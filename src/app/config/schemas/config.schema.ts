@@ -5,6 +5,7 @@ import { AdminAccountConfig } from './admin-account-config.schema';
 import { DbConfig } from './db-config.schema';
 import { RequestsConfig } from './requests-config.schema';
 import { SecurityConfig } from './security-config.schema';
+import { MailerConfig } from './mailer-config.schema';
 
 class DatabasesConfig {
   @ValidateNested()
@@ -32,4 +33,8 @@ export class Config {
   @ValidateNested()
   @Type(() => SecurityConfig)
   security: SecurityConfig;
+
+  @ValidateNested()
+  @Type(() => MailerConfig)
+  mail: MailerConfig;
 }

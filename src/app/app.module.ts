@@ -4,10 +4,11 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 
 import { dynamicModules } from '~/app/modules';
 import { AuthModule } from '~/auth/auth.module';
+import { MailModule } from '~/mail/mail.module';
 import { UserModule } from '~/user/user.module';
 
 @Module({
-  imports: [UserModule, AuthModule, ...dynamicModules],
+  imports: [UserModule, AuthModule, MailModule, ...dynamicModules],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}
