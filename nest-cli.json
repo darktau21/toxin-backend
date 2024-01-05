@@ -6,10 +6,17 @@
     "deleteOutDir": true,
     "builder": "swc",
     "typeCheck": true,
-    "assets": [{
-      "include": "config*.yaml",
-      "outDir": "dist/",
-      "watchAssets": true
-    }]
+    "assets": [
+      {
+        "include": "config*.yaml",
+        "outDir": "dist/",
+        "watchAssets": true
+      },
+      {
+        "include": "**/*.hbs",
+        "outDir": "dist/",
+        "watchAssets": true
+      }
+    ]
   }
 }
