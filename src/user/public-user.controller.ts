@@ -52,6 +52,13 @@ export class PublicUserController {
     return { user: user ? new UserResponse(user) : null };
   }
 
+  @Get('me/restore')
+  @UseGuards(JwtAuthGuard)
+  async restoreCurrentUser(@CurrentUser() currentUser: IAccessTokenData) {
+    const user = await this.userService.restore(currentUser.id);
+    return { user: new UserResponse(user) };
+  }
+
   @Patch('me')
   @UseGuards(JwtAuthGuard)
   async updateCurrentUser(

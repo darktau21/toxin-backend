@@ -35,6 +35,9 @@ export class User {
   @Prop({ default: true })
   isSubscriber: boolean;
 
+  @Prop({ default: false })
+  isVerified: boolean;
+
   @Prop()
   lastName: string;
 

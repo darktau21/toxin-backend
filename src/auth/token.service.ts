@@ -21,10 +21,10 @@ export class TokenService {
 
   constructor(
     @Inject(ConfigService) private readonly configService: AppConfigService,
-    private readonly redis: RedisService,
     private readonly jwtService: JwtService,
+    redis: RedisService,
   ) {
-    this.tokensDb = this.redis.getClient(REDIS_TOKENS);
+    this.tokensDb = redis.getClient(REDIS_TOKENS);
   }
 
   private async generateAccessToken(jwtData: IAccessTokenData) {

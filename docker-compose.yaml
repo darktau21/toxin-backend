@@ -26,14 +26,14 @@ services:
     image: mongo:7.0
     container_name: toxin-mongo
     ports:
-      - "27017:27017"
+      - '27017:27017'
     volumes:
       - ./data/db:/data/db
   redis:
     image: redis:7.2
     container_name: toxin-redis
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - ./data/cache:/data
     command: redis-server --save 20 1 --loglevel warning --requirepass qwerty
@@ -42,15 +42,15 @@ services:
     container_name: toxin-s3
     command: server --console-address ":9001" /data/
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     environment:
       MINIO_ROOT_USER: toxin
       MINIO_ROOT_PASSWORD: qwerty123
     volumes:
       - ./data/files:/data
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
       interval: 30s
       timeout: 20s
       retries: 3

@@ -12,4 +12,4 @@ export const dynamicModules = [
   throttlerModuleConfig,
 ];
 
-export { REDIS_CACHE, REDIS_TOKENS } from './redis.module';
+export { REDIS_CACHE, REDIS_EMAILS, REDIS_TOKENS } from './redis.module';

@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class DbConfig {
   @IsOptional()
@@ -12,6 +12,7 @@ export class DbConfig {
   password?: string;
 
   @IsNumber()
+  @IsInt()
   port: number;
 
   @IsOptional()

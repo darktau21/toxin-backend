@@ -5,11 +5,12 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
   MinLength,
 } from 'class-validator';
 
-import { FilterObjectDate, FilterObjectNumber } from '~/app/constraints';
+import { FilterObjectDate } from '~/app/constraints';
 import { IsDateFilterObject } from '~/app/decorators';
 import { Genders } from '~/user/schemas';
 
@@ -27,7 +28,7 @@ export class SortUsersQueryDto {
 
   @IsOptional()
   @IsDateFilterObject()
-  createdAt?: FilterObjectNumber | number;
+  createdAt?: FilterObjectDate | string;
 
   @IsOptional()
   @IsString()
@@ -50,6 +51,7 @@ export class SortUsersQueryDto {
 
   @IsOptional()
   @IsNumber()
+  @Max(40)
   @Type(() => Number)
   limit?: number;
 

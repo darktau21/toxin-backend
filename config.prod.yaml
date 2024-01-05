@@ -21,6 +21,7 @@ security:
     accessSecret: 'super-secret-jwt-access-token'
   cookieSecret: 'super-secret-cookie-sign'
   secureCookie: false
+  deletedAccountTtl: 15_552_000
 
 adminAccount:
   email: 'admin@admin.com'
