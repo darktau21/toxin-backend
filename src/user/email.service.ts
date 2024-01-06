@@ -5,7 +5,6 @@ import {
   Injectable,
   forwardRef,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { RedisService } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 
