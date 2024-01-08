@@ -13,23 +13,19 @@ import { JwtAuthGuard } from '~/auth/guards';
 import { IAccessTokenData } from '~/auth/interfaces';
 import { UserService } from '~/user/user.service';
 
-import { EmailService } from './email.service';
 import { UserResponse } from './responses';
 
 @Controller('email')
 @UseGuards(JwtAuthGuard)
 export class EmailController {
-  constructor(
-    private readonly emailService: EmailService,
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   @Get(':code')
   async confirmEmail(
     @CurrentUser() currentUser: IAccessTokenData,
     @Param('code') code: string,
   ) {
-    const user = await this.emailService.confirmEmail(currentUser.id, code);
+    const user = await this.userService.confirmEmail(currentUser.id, code);
     return { user: new UserResponse(user) };
   }
 
@@ -44,7 +40,7 @@ export class EmailController {
       throw new BadRequestException('user already verified');
     }
 
-    await this.emailService.generateEmailConfirmation(
+    await this.userService.generateEmailConfirmation(
       user._id.toString(),
       user.email,
     );

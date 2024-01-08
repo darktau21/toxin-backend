@@ -1,39 +1,65 @@
 import {
+  BadRequestException,
   ConflictException,
-  Inject,
+  GoneException,
   Injectable,
-  forwardRef,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { RedisService } from '@songkeys/nestjs-redis';
 import { hash } from 'bcrypt';
+import Redis from 'ioredis';
 import { Model } from 'mongoose';
 
+import { REDIS_EMAILS } from '~/app/modules';
 import {
   PaginatedResponse,
   applyFilters,
+  asyncRandomBytes,
   clearObject,
   createFilterQuery,
   includeDeleted,
   paginate,
 } from '~/app/utils';
 import { AppConfigService } from '~/config/app-config.service';
+import { MailService } from '~/mail/mail.service';
 import { SortUsersQueryDto, UserSortFields } from '~/user/dto';
 import { User } from '~/user/schemas';
 
-import { EmailService } from './email.service';
+const CONFIRMATION_CODE_SIZE = 64;
 
 @Injectable()
 export class UserService {
+  private emailsDb: Redis;
+
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
-    @Inject(forwardRef(() => EmailService))
-    private readonly emailService: EmailService,
     private readonly configService: AppConfigService,
-  ) {}
+    private readonly mailService: MailService,
+    redis: RedisService,
+  ) {
+    this.emailsDb = redis.getClient(REDIS_EMAILS);
+  }
 
   private async hashPassword(password: string) {
     const { passwordHashRounds } = this.configService.getSecurity();
     return hash(password, passwordHashRounds);
+  }
+
+  async confirmEmail(id: string, code: string) {
+    const confirmationCode = await this.emailsDb.get(id);
+    await this.emailsDb.del(id);
+
+    if (!confirmationCode) {
+      throw new GoneException('unknown confirmation code');
+    }
+
+    if (confirmationCode !== code) {
+      throw new BadRequestException('wrong confirmation code');
+    }
+
+    const user = await this.update(id, { isVerified: true });
+
+    return user;
   }
 
   async create(userData: Partial<User>): Promise<User> {
@@ -48,10 +74,7 @@ export class UserService {
       password: hashedPassword,
     });
 
-    await this.emailService.generateEmailConfirmation(
-      createdUser.id,
-      createdUser.email,
-    );
+    await this.generateEmailConfirmation(createdUser.id, createdUser.email);
 
     return createdUser;
   }
@@ -122,6 +145,18 @@ export class UserService {
       .exec();
   }
 
+  async generateEmailConfirmation(id: string, email: string) {
+    const confirmationCode = (
+      await asyncRandomBytes(CONFIRMATION_CODE_SIZE / 2)
+    ).toString('hex');
+
+    const { confirmationTime } = this.configService.getMail();
+
+    await this.emailsDb.set(id, confirmationCode, 'EX', confirmationTime);
+
+    await this.mailService.sendConfirmationCode(email, confirmationCode);
+  }
+
   async restore(id: string) {
     return this.update(id, { isDeleted: false });
   }
@@ -133,7 +168,7 @@ export class UserService {
   ): Promise<User | null> {
     if (data.email) {
       data.isVerified = false;
-      await this.emailService.generateEmailConfirmation(id, data.email);
+      await this.generateEmailConfirmation(id, data.email);
     }
 
     return this.userModel

@@ -8,7 +8,6 @@ import { User, UserSchema } from '~/user/schemas';
 import { UserService } from '~/user/user.service';
 
 import { EmailController } from './email.controller';
-import { EmailService } from './email.service';
 
 @Module({
   controllers: [PublicUserController, EmailController],
@@ -17,6 +16,6 @@ import { EmailService } from './email.service';
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MailModule,
   ],
-  providers: [UserService, EmailService, RoleGuard],
+  providers: [UserService, RoleGuard],
 })
 export class UserModule {}
