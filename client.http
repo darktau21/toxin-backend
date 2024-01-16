@@ -71,9 +71,9 @@ Authorization: Bearer {{accessToken}}
 ###
 # @name getUsers
 GET {{url}}/user
-    # ?select=gender
-    # &birthday[gte]=2002-04-08
-    # &sort=-birthday
+    ?select=gender
+    &birthday[gte]=2002-04-08
+    &sort=-birthday
 
 Accept: application/json
 ###
@@ -119,7 +119,7 @@ Authorization: Bearer {{accessToken}}
 
 ###
 # @name confirmEmail
-GET {{url}}/email/59992fae9480429216e6bd27a09df197c735f7063044436d263872e54547da41
+GET {{url}}/email/384ae8b20526ae5e01c58086b9cb1329f82a68a34cad7b161927de8997e7399a
 Accept: application/json
 Authorization: Bearer {{accessToken}}
 ###
