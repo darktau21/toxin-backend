@@ -6,7 +6,6 @@ import {
   HttpStatus,
   Post,
   Res,
-  UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { FastifyReply } from 'fastify';
@@ -14,7 +13,6 @@ import { FastifyReply } from 'fastify';
 import { AuthService } from '~/auth/auth.service';
 import { Cookie, Fingerprint } from '~/auth/decorators';
 import { LoginDto, RegisterDto } from '~/auth/dto';
-import { UnauthorizedGuard } from '~/auth/guards';
 import { IFingerprint, REFRESH_TOKEN_COOKIE } from '~/auth/interfaces';
 import { AppConfigService } from '~/config/app-config.service';
 
@@ -42,7 +40,6 @@ export class AuthController {
   }
 
   @Post('login')
-  @UseGuards(UnauthorizedGuard)
   async login(
     @Body() loginDto: LoginDto,
     @Fingerprint() fingerprint: IFingerprint,
@@ -86,7 +83,6 @@ export class AuthController {
   }
 
   @Post('register')
-  @UseGuards(UnauthorizedGuard)
   @HttpCode(HttpStatus.CREATED)
   async register(
     @Body() registerDto: RegisterDto,
