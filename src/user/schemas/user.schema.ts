@@ -13,12 +13,20 @@ export enum Roles {
   USER = 'user',
 }
 
+export const USER_DELETE_TTL = 15_552_000;
+
 @Schema({ timestamps: true, versionKey: false })
 export class User {
   _id: mongoose.Types.ObjectId;
 
   @Prop({ type: Date })
   birthday: Date;
+
+  @Prop({ expires: USER_DELETE_TTL, type: Date })
+  deletedAt?: Date;
+
+  @Prop({ type: Date })
+  deletionDate?: Date;
 
   @Prop({ unique: true })
   email: string;

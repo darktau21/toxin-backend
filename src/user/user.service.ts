@@ -7,6 +7,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { RedisService } from '@songkeys/nestjs-redis';
 import { hash } from 'bcrypt';
+import { add } from 'date-fns';
 import Redis from 'ioredis';
 import { Model } from 'mongoose';
 
@@ -23,7 +24,7 @@ import {
 import { AppConfigService } from '~/config/app-config.service';
 import { MailService } from '~/mail/mail.service';
 import { SortUsersQueryDto, UserSortFields } from '~/user/dto';
-import { User } from '~/user/schemas';
+import { USER_DELETE_TTL, User } from '~/user/schemas';
 
 const CONFIRMATION_CODE_SIZE = 64;
 
@@ -81,7 +82,15 @@ export class UserService {
 
   async delete(id: string): Promise<null> {
     await this.userModel
-      .findByIdAndUpdate(id, { isDeleted: true }, { new: true })
+      .findByIdAndUpdate(
+        id,
+        {
+          deletedAt: new Date(),
+          deletionDate: add(Date.now(), { seconds: USER_DELETE_TTL }),
+          isDeleted: true,
+        },
+        { new: true },
+      )
       .lean()
       .exec();
     return null;
