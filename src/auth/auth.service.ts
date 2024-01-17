@@ -44,7 +44,10 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto) {
-    return this.userService.create(registerDto);
+    return this.userService.create({
+      ...registerDto,
+      birthday: new Date(registerDto.birthday),
+    });
   }
 
   async validateUser(payload: IAccessTokenData) {

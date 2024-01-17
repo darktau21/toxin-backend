@@ -17,8 +17,8 @@ export enum Roles {
 export class User {
   _id: mongoose.Types.ObjectId;
 
-  @Prop()
-  birthday: string;
+  @Prop({ type: Date })
+  birthday: Date;
 
   @Prop({ unique: true })
   email: string;

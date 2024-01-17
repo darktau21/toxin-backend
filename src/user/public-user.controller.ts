@@ -65,7 +65,7 @@ export class PublicUserController {
     @CurrentUser() currentUser: IAccessTokenData,
     @Body() updateData: UpdateSelfUserDto,
   ) {
-    const user = await this.userService.update(currentUser.id, updateData);
+    const user = await this.userService.update(currentUser.id, {...updateData, birthday: new Date(updateData.birthday)});
     return { user: new UserResponse(user) };
   }
 }
