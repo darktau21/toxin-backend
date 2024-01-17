@@ -1,4 +1,5 @@
-import { FastifyCookieOptions, fastifyCookie } from '@fastify/cookie';
+import { FastifyCookieOptions } from '@fastify/cookie';
+import fastifyCookiePlugin from '@fastify/cookie';
 import {
   BadRequestException,
   ClassSerializerInterceptor,
@@ -64,7 +65,8 @@ async function bootstrap() {
 
   const { cookieSecret } = configService.getSecurity();
 
-  await app.register(fastifyCookie, {
+  // @ts-expect-error incompatible plugin type
+  await app.register(fastifyCookiePlugin, {
     secret: cookieSecret,
   } satisfies FastifyCookieOptions);
 
