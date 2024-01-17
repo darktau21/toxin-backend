@@ -13,6 +13,9 @@ import {
 } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationError, useContainer } from 'class-validator';
+import { writeFile } from 'fs/promises';
+import { SpelunkerModule } from 'nestjs-spelunker';
+import { resolve } from 'path';
 import * as process from 'process';
 
 import { AppModule } from '~/app/app.module';
@@ -31,6 +34,27 @@ async function bootstrap() {
       trustProxy: '127.0.0.1',
     }),
   );
+
+  if (process.env.NODE_ENV === 'development') {
+    console.log(SpelunkerModule.explore(app));
+
+    const tree = SpelunkerModule.explore(app);
+    const root = SpelunkerModule.graph(tree);
+    const edges = SpelunkerModule.findGraphEdges(root);
+
+    let res = 'graph LR\n';
+
+    const mermaidEdges = edges.map(
+      ({ from, to }) => `  ${from.module.name}-->${to.module.name}`,
+    );
+
+    res += mermaidEdges.join('\n');
+
+    await writeFile(resolve(__dirname, '../mermaidGraph.txt'), res, {
+      encoding: 'utf-8',
+      flag: 'w',
+    });
+  }
 
   const configService: AppConfigService = app.get(AppConfigService);
   if (process.env.NODE_ENV === 'development') {
