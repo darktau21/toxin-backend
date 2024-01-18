@@ -18,7 +18,6 @@ export const mailProviders: Provider[] = [
             pass: password,
             user,
           },
-          debug: process.env.NODE_ENV === 'development',
           host,
           port,
           secure,

@@ -40,6 +40,6 @@ mail:
   password: '9ju527o0s2'
   secure: false
   name: 'Toxin Support'
-  urlBase: 'http://localhost:3000/v1'
+  baseUrl: 'https://toxin-api.js-dev.su'
   confirmEmailUrl: 'emailConfirmation'
   resetPasswordUrl: 'resetPassword'

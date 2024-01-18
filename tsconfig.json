@@ -21,12 +21,8 @@
     "strictPropertyInitialization": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-//      "~auth/*": ["src/auth/*"],
-//      "~auth": ["src/auth"],
-//      "~user/*": ["src/user/*"],
-//      "~user": ["src/user"],
       "~/": ["src/"],
-      "~/*": ["src/*"],
+      "~/*": ["src/*"]
     }
   }
 }

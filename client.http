@@ -1,4 +1,5 @@
-@url = http://localhost:3000/v1
+# @url = http://localhost:3000/v1
+@url = https://toxin-api.js-dev.su/v1
 
 ###
 # @name register
@@ -72,7 +73,7 @@ Authorization: Bearer {{accessToken}}
 # @name getUsers
 GET {{url}}/user
     # ?select=gender
-    # &birthday[gte]=2002-04-08
+    # &birthday[gte]=2002-04-10
     # &sort=-birthday
 
 Accept: application/json
@@ -119,7 +120,7 @@ Authorization: Bearer {{accessToken}}
 
 ###
 # @name confirmEmail
-GET {{url}}/email/59992fae9480429216e6bd27a09df197c735f7063044436d263872e54547da41
+GET {{url}}/email/3a4626f3a4a408cae111af86f0c603f37489e4553df0a946e676ca843f726c27
 Accept: application/json
 Authorization: Bearer {{accessToken}}
 ###

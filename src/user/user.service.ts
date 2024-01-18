@@ -1,4 +1,9 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  OnModuleInit,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { hash } from 'bcrypt';
 import { add } from 'date-fns';
@@ -14,12 +19,14 @@ import {
 } from '~/app/utils';
 import { AppConfigService } from '~/config/app-config.service';
 import { SortUsersQueryDto, UserSortFields } from '~/user/dto';
-import { USER_DELETE_TTL, User } from '~/user/schemas';
+import { Genders, Roles, USER_DELETE_TTL, User } from '~/user/schemas';
 
 import { EmailService } from './email.service';
 
 @Injectable()
-export class UserService {
+export class UserService implements OnModuleInit {
+  private readonly logger = new Logger(UserService.name);
+
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
     private readonly configService: AppConfigService,
@@ -120,6 +127,27 @@ export class UserService {
       })
       .lean()
       .exec();
+  }
+
+  async onModuleInit() {
+    const { email, password } = this.configService.getAdminAccount();
+    const user = await this.userModel.findOne({ email });
+    if (user) {
+      this.logger.log('Admin user already exists');
+
+      return;
+    }
+
+    this.userModel.create({
+      birthday: new Date(0),
+      email,
+      gender: Genders.MALE,
+      lastName: 'Admin',
+      name: 'Admin',
+      password,
+      role: Roles.ADMIN,
+    });
+    this.logger.log('Admin user created');
   }
 
   async restore(id: string) {
