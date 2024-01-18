@@ -22,6 +22,7 @@ security:
   cookieSecret: 'super-secret-cookie-sign'
   secureCookie: false
   deletedAccountTtl: 15_552_000
+  emailConfirmationTime: 600
 
 adminAccount:
   email: 'admin@admin.com'
@@ -38,4 +39,7 @@ mail:
   user: 'toxin@js-dev.su'
   password: '9ju527o0s2'
   secure: false
-  confirmationTime: 600
+  name: 'Toxin Support'
+  baseUrl: 'http://localhost:3000'
+  confirmEmailUrl: 'v1/emailConfirmation'
+  resetPasswordUrl: 'v1/resetPassword'

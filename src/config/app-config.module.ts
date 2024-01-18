@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { configLoaders } from './loaders';
 import { AppConfigService } from './app-config.service';
+import { AppConfigStatic } from './app-config.static';
 
 @Global()
 @Module({
@@ -13,7 +14,7 @@ import { AppConfigService } from './app-config.service';
       load: configLoaders,
     }),
   ],
-  providers: [AppConfigService],
+  providers: [AppConfigService, AppConfigStatic],
   exports: [AppConfigService],
 })
 export class AppConfigModule {}

@@ -27,4 +27,8 @@ export class SecurityConfigSchema {
 
   @ValidateNested()
   tokens: TokensConfigSchema;
+
+  @IsNumber()
+  @IsInt()
+  emailConfirmationTime: number;
 }

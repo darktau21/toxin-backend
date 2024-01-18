@@ -35,3 +35,5 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 data/
+mermaidGraph.txt
+.react-email

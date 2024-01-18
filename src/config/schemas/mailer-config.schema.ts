@@ -1,4 +1,10 @@
-import { IsBoolean, IsInt, IsNumber, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsNumber,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 export class MailerConfigSchema {
   @IsString()
@@ -17,7 +23,19 @@ export class MailerConfigSchema {
   @IsBoolean()
   secure: boolean;
 
-  @IsNumber()
-  @IsInt()
-  confirmationTime: number;
+  @IsString()
+  @MaxLength(48)
+  name: string;
+
+  @IsString()
+  @MaxLength(128)
+  baseUrl: string;
+
+  @IsString()
+  @MaxLength(128)
+  confirmEmailUrl: string;
+
+  @IsString()
+  @MaxLength(128)
+  resetPasswordUrl: string;
 }

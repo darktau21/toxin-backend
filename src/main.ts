@@ -36,8 +36,6 @@ async function bootstrap() {
   );
 
   if (process.env.NODE_ENV === 'development') {
-    console.log(SpelunkerModule.explore(app));
-
     const tree = SpelunkerModule.explore(app);
     const root = SpelunkerModule.graph(tree);
     const edges = SpelunkerModule.findGraphEdges(root);
@@ -60,6 +58,9 @@ async function bootstrap() {
   if (process.env.NODE_ENV === 'development') {
     app.useLogger(console);
   }
+
+  console.log(resolve(__dirname, '..', 'public'));
+  app.useStaticAssets({ root: resolve(__dirname, '..', 'public') });
 
   app.useGlobalFilters(new HttpExceptionFilter());
 
