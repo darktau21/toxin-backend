@@ -1,3 +1,4 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -8,6 +9,7 @@ import { User, UserSchema } from '~/user/schemas';
 import { UserService } from '~/user/user.service';
 
 import { EmailController } from './email.controller';
+import { EmailService } from './email.service';
 
 @Module({
   controllers: [PublicUserController, EmailController],
@@ -15,7 +17,8 @@ import { EmailController } from './email.controller';
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MailModule,
+    CacheModule.register(),
   ],
-  providers: [UserService, RoleGuard],
+  providers: [UserService, RoleGuard, EmailService],
 })
 export class UserModule {}
