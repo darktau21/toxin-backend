@@ -6,20 +6,17 @@ import type {
 
 import { Observable, map } from 'rxjs';
 
-import type { ResponseWrapper } from '~/app/types';
+import { ResponseStatus, ResponseWrapper } from '~/app/responses';
 
-export class ResponseWrapperInterceptor<T>
+export class ResponseWrapperInterceptor<T = unknown>
   implements NestInterceptor<T, ResponseWrapper<T>>
 {
   intercept(
     context: ExecutionContext,
     next: CallHandler,
   ): Observable<ResponseWrapper<T>> {
-    return next.handle().pipe(
-      map((data) => ({
-        data,
-        status: 'success',
-      })),
-    );
+    return next
+      .handle()
+      .pipe(map((data) => new ResponseWrapper(ResponseStatus.SUCCESS, data)));
   }
 }

@@ -18,4 +18,8 @@ export class DbConfigSchema {
   @IsOptional()
   @IsString()
   user?: string;
+
+  @IsOptional()
+  @IsString()
+  replicaSet: string;
 }
