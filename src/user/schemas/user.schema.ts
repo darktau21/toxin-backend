@@ -1,62 +1,54 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+import { Types } from 'mongoose';
 
-export type UserDocument = HydratedDocument<User>;
+import { Genders, IUser, Roles } from '~/user/interfaces';
 
-export enum Genders {
-  FEMALE = 'female',
-  MALE = 'male',
-}
+export const USER_SCHEMA_NAME = 'USER';
 
-export enum Roles {
-  ADMIN = 'admin',
-  USER = 'user',
-}
+export const UserSchemaFactory = (userDeleteTtl: number) => {
+  @Schema({ timestamps: true, versionKey: false })
+  class User implements IUser {
+    _id: Types.ObjectId;
 
-export const USER_DELETE_TTL = 15_552_000;
+    @Prop({ type: Date })
+    birthday: Date | string;
 
-@Schema({ timestamps: true, versionKey: false })
-export class User {
-  _id: mongoose.Types.ObjectId;
+    @Prop({ expires: userDeleteTtl, type: Date })
+    deletedAt?: Date | string;
 
-  @Prop({ type: Date })
-  birthday: Date;
+    @Prop({ type: Date })
+    deletionDate?: Date | string;
 
-  @Prop({ expires: USER_DELETE_TTL, type: Date })
-  deletedAt?: Date;
+    @Prop({ unique: true })
+    email: string;
 
-  @Prop({ type: Date })
-  deletionDate?: Date;
+    @Prop({ enum: Genders, type: String })
+    gender: Genders;
 
-  @Prop({ unique: true })
-  email: string;
+    @Prop({ default: false })
+    isBlocked: boolean;
 
-  @Prop({ enum: Genders, type: String })
-  gender: Genders;
+    @Prop({ default: false })
+    isDeleted: boolean;
 
-  @Prop({ default: false })
-  isBlocked: boolean;
+    @Prop({ default: true })
+    isSubscriber: boolean;
 
-  @Prop({ default: false })
-  isDeleted: boolean;
+    @Prop({ default: false })
+    isVerified: boolean;
 
-  @Prop({ default: true })
-  isSubscriber: boolean;
+    @Prop()
+    lastName: string;
 
-  @Prop({ default: false })
-  isVerified: boolean;
+    @Prop()
+    name: string;
 
-  @Prop()
-  lastName: string;
+    @Prop()
+    password: string;
 
-  @Prop()
-  name: string;
+    @Prop({ default: Roles.USER, enum: Roles, type: String })
+    role: Roles;
+  }
 
-  @Prop()
-  password: string;
-
-  @Prop({ default: Roles.USER, enum: Roles, type: String })
-  role: Roles;
-}
-
-export const UserSchema = SchemaFactory.createForClass(User);
+  return SchemaFactory.createForClass(User);
+};

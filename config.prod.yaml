@@ -20,8 +20,8 @@ security:
     refreshExpTime: 5097600
     accessSecret: 'super-secret-jwt-access-token'
   cookieSecret: 'super-secret-cookie-sign'
-  secureCookie: false
-  deletedAccountTtl: 15_552_000
+  secureCookie: true
+  deletedUserTtl: 15_552_000
   emailConfirmationTime: 600
 
 adminAccount:
