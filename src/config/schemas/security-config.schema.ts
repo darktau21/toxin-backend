@@ -30,5 +30,11 @@ export class SecurityConfigSchema {
 
   @IsNumber()
   @IsInt()
+  @Min(1)
+  deletedUserTtl: number
+
+  @IsNumber()
+  @IsInt()
+  @Min(1)
   emailConfirmationTime: number;
 }
