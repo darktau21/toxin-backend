@@ -1,10 +1,12 @@
+import { IUser } from '~/user/interfaces';
+
 import { IFingerprint } from './fingerprint.interface';
 
 export const REFRESH_TOKEN_COOKIE = 'refreshToken';
 
 export interface IRefreshTokenData {
-  expiresIn: number;
+  expiresIn: Date;
   fingerprint: IFingerprint;
   refreshToken: string;
-  userId: string;
+  user: IUser;
 }
