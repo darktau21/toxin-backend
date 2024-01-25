@@ -2,23 +2,32 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { AppConfigService } from '~/config/app-config.service';
 import { MailModule } from '~/mail/mail.module';
-import { RoleGuard } from '~/user/guards';
 import { PublicUserController } from '~/user/public-user.controller';
-import { User, UserSchema } from '~/user/schemas';
 import { UserService } from '~/user/user.service';
 
-import { EmailController } from './email.controller';
-import { EmailService } from './email.service';
+import { IsUniqueUserFieldConstraint } from './constraints';
+import { USER_SCHEMA_NAME, UserSchemaFactory } from './schemas';
 
 @Module({
-  controllers: [PublicUserController, EmailController],
+  controllers: [PublicUserController],
   exports: [UserService],
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MailModule,
     CacheModule.register(),
+    MailModule,
+    MongooseModule.forFeatureAsync([
+      {
+        collection: 'users',
+        inject: [AppConfigService],
+        name: USER_SCHEMA_NAME,
+        useFactory: (configService: AppConfigService) => {
+          const { deletedUserTtl } = configService.getSecurity();
+          return UserSchemaFactory(deletedUserTtl);
+        },
+      },
+    ]),
   ],
-  providers: [UserService, RoleGuard, EmailService],
+  providers: [IsUniqueUserFieldConstraint, UserService],
 })
 export class UserModule {}

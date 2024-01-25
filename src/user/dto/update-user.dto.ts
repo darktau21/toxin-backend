@@ -1,23 +1,16 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsBoolean } from 'class-validator';
+import { IsBoolean, IsOptional } from 'class-validator';
 
 import { CreateUserDto } from './create-user.dto';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Заблокирован ли пользователь',
     type: Boolean,
   })
   @IsBoolean()
   @Type(() => Boolean)
-  isBlocked: boolean;
-
-  @ApiProperty({
-    description: 'Удален ли пользователь',
-    type: Boolean,
-  })
-  @IsBoolean()
-  @Type(() => Boolean)
-  isDeleted: boolean;
+  @IsOptional()
+  isBlocked?: boolean;
 }

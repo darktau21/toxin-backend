@@ -108,7 +108,7 @@ describe('UserService', () => {
 
   describe('delete', () => {
     it('should return null', async () => {
-      const result = await userService.delete(mockUser._id.toString());
+      const result = await userService.softDelete(mockUser._id.toString());
       expect(result).toStrictEqual(null);
     });
   });

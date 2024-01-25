@@ -1,17 +1,19 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDateString,
   IsEmail,
   IsEnum,
+  IsOptional,
   IsString,
   IsStrongPassword,
   MaxLength,
   MinLength,
 } from 'class-validator';
 
-import { Genders, Roles } from '~/user/schemas';
+import { IsUniqueUserField } from '~/user/decorators';
+import { Genders, Roles } from '~/user/interfaces';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -26,24 +28,26 @@ export class CreateUserDto {
     type: String,
   })
   @IsEmail()
+  @IsUniqueUserField()
   email: string;
 
   @ApiProperty({
     description: 'Пол - мужской или женский',
     enum: Genders,
-    type: String,
+    enumName: 'Genders',
   })
   @IsString()
   @IsEnum(Genders)
   gender: Genders;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Является ли пользователь получателем рассылки',
     type: Boolean,
   })
   @IsBoolean()
   @Type(() => Boolean)
-  isSubscriber: boolean;
+  @IsOptional()
+  isSubscriber?: boolean;
 
   @ApiProperty({
     description: 'Фамилия, минимальная длинна - 2, максимальная - 32',
@@ -78,12 +82,13 @@ export class CreateUserDto {
   @MaxLength(32)
   password: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Роль',
     enum: Roles,
-    type: String,
+    enumName: 'Roles',
   })
   @IsString()
   @IsEnum(Roles)
-  role: Roles;
+  @IsOptional()
+  role?: Roles;
 }

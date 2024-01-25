@@ -1,31 +1,24 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { RedisService } from '@songkeys/nestjs-redis';
+import { InjectModel } from '@nestjs/mongoose';
 import { add } from 'date-fns';
-import Redis from 'ioredis';
+import { ClientSession, Model } from 'mongoose';
 import { v4 } from 'uuid';
 
-import { REDIS_TOKENS } from '~/app/modules';
-import {
-  IAccessTokenData,
-  IFingerprint,
-  IRefreshTokenData,
-} from '~/auth/interfaces';
+import { IAccessTokenData, IRefreshTokenData } from '~/auth/interfaces';
 import { AppConfigService } from '~/config/app-config.service';
-import { User } from '~/user/schemas';
+import { IUser } from '~/user/interfaces';
+
+import { Fingerprint, REFRESH_TOKEN_DATA_SCHEMA_NAME } from './schemas';
 
 @Injectable()
 export class TokenService {
-  private tokensDb: Redis;
-
   constructor(
-    private readonly configService: AppConfigService,
+    @InjectModel(REFRESH_TOKEN_DATA_SCHEMA_NAME)
+    private readonly refreshTokenModel: Model<IRefreshTokenData>,
     private readonly jwtService: JwtService,
-    redis: RedisService,
-  ) {
-    this.tokensDb = redis.getClient(REDIS_TOKENS);
-  }
+    private readonly configService: AppConfigService,
+  ) {}
 
   private async generateAccessToken(jwtData: IAccessTokenData) {
     return this.jwtService.signAsync(jwtData);
@@ -33,39 +26,62 @@ export class TokenService {
 
   private async generateRefreshToken(
     userId: string,
-    fingerprint: IFingerprint,
+    fingerprint: Fingerprint,
+    session?: ClientSession,
   ) {
     const { tokens: config } = this.configService.getSecurity();
 
     const token = v4();
-    const ttl = config.refreshExpTime;
-    const tokenData: IRefreshTokenData = {
-      expiresIn: add(new Date(), { seconds: ttl }).getTime(),
-      fingerprint,
-      refreshToken: token,
-      userId,
-    };
+    const tokenData = await this.refreshTokenModel.create(
+      [
+        {
+          expiresIn: add(new Date(), { seconds: config.refreshExpTime }),
+          fingerprint,
+          refreshToken: token,
+          user: userId,
+        },
+      ],
+      { session },
+    );
 
-    await this.tokensDb.set(token, JSON.stringify(tokenData), 'EX', ttl);
-
-    return { token, tokenData };
+    return tokenData[0];
   }
-  async deleteRefreshToken(refreshToken: string): Promise<IRefreshTokenData> {
-    const refreshTokenData = JSON.parse(await this.tokensDb.get(refreshToken));
-    await this.tokensDb.del(refreshToken);
+
+  async deleteRefreshToken(
+    refreshToken: string,
+    session?: ClientSession,
+  ): Promise<IRefreshTokenData> {
+    const refreshTokenData = await this.refreshTokenModel
+      .findOneAndDelete(
+        {
+          refreshToken,
+        },
+        { session },
+      )
+      .populate('user')
+      .lean()
+      .exec();
 
     return refreshTokenData;
   }
 
-  async generateTokens(user: User, fingerprint: IFingerprint) {
+  async generateTokens(
+    user: Pick<IUser, '_id' | 'email' | 'role'>,
+    fingerprint: Fingerprint,
+    session?: ClientSession,
+  ) {
     const accessToken = await this.generateAccessToken({
       email: user.email,
       id: user._id.toString(),
       role: user.role,
     });
 
-    const { token: refreshToken, tokenData: refreshTokenData } =
-      await this.generateRefreshToken(user._id.toString(), fingerprint);
+    const { refreshToken, ...refreshTokenData } =
+      await this.generateRefreshToken(
+        user._id.toString(),
+        fingerprint,
+        session,
+      );
 
     return { accessToken, refreshToken, refreshTokenData };
   }

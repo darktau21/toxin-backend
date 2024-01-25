@@ -12,7 +12,7 @@ import {
 
 import { FilterObjectDate } from '~/app/constraints';
 import { IsDateFilterObject } from '~/app/decorators';
-import { Genders } from '~/user/schemas';
+import { Genders } from '~/user/interfaces';
 
 export enum UserSortFields {
   BIRTHDAY = 'birthday',

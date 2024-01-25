@@ -5,6 +5,7 @@ db:
     database: 'toxin'
     user: 'jfdlskfjjkflds'
     password: 'KHdfsihfdisu392473FDUY3467'
+    replicaSet: 'rsToxin'
 
   redis:
     host: 'srv-captain--redis'

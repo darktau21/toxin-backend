@@ -1,36 +1,29 @@
-import {
-  ConflictException,
-  Injectable,
-  Logger,
-  OnModuleInit,
-} from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { hash } from 'bcrypt';
 import { add } from 'date-fns';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 
 import {
   PaginatedResponse,
   applyFilters,
   clearObject,
   createFilterQuery,
-  includeDeleted,
   paginate,
 } from '~/app/utils';
 import { AppConfigService } from '~/config/app-config.service';
 import { SortUsersQueryDto, UserSortFields } from '~/user/dto';
-import { Genders, Roles, USER_DELETE_TTL, User } from '~/user/schemas';
 
-import { EmailService } from './email.service';
+import { Genders, IUser, Roles } from './interfaces';
+import { USER_SCHEMA_NAME } from './schemas';
 
 @Injectable()
 export class UserService implements OnModuleInit {
   private readonly logger = new Logger(UserService.name);
 
   constructor(
-    @InjectModel(User.name) private readonly userModel: Model<User>,
+    @InjectModel(USER_SCHEMA_NAME) private readonly userModel: Model<IUser>,
     private readonly configService: AppConfigService,
-    private readonly emailService: EmailService,
   ) {}
 
   private async hashPassword(password: string) {
@@ -38,47 +31,26 @@ export class UserService implements OnModuleInit {
     return hash(password, passwordHashRounds);
   }
 
-  async create(userData: Partial<User>): Promise<User> {
-    const user = await this.userModel.findOne({ email: userData.email });
-    if (user) {
-      throw new ConflictException('user already exists');
-    }
+  async create(
+    userData: Partial<IUser>,
+    session?: ClientSession,
+  ): Promise<IUser> {
     const hashedPassword = await this.hashPassword(userData.password);
-
-    const createdUser = await this.userModel.create({
-      ...userData,
-      password: hashedPassword,
-    });
-
-    this.emailService.confirmEmail(createdUser);
-
-    return createdUser;
-  }
-
-  async delete(id: string): Promise<null> {
-    await this.userModel
-      .findByIdAndUpdate(
-        id,
+    const user = await this.userModel.create(
+      [
         {
-          deletedAt: new Date(),
-          deletionDate: add(Date.now(), { seconds: USER_DELETE_TTL }),
-          isDeleted: true,
+          ...userData,
+          password: hashedPassword,
         },
-        { new: true },
-      )
-      .lean()
-      .exec();
-    return null;
+      ],
+      { session },
+    );
+
+    return user[0];
   }
 
-  async findById(
-    id: string,
-    includeRemoved: boolean = true,
-  ): Promise<User | null> {
-    return await this.userModel
-      .findOne({ _id: id, isDeleted: includeDeleted(includeRemoved) })
-      .lean()
-      .exec();
+  async findById(id: string, session?: ClientSession): Promise<IUser | null> {
+    return this.userModel.findById(id, {}, { session }).lean().exec();
   }
 
   async findMany(
@@ -91,18 +63,19 @@ export class UserService implements OnModuleInit {
       sort,
       ...data
     }: SortUsersQueryDto,
-    includeRemoved: boolean = true,
-  ): Promise<PaginatedResponse & { users: User[] }> {
+    session?: ClientSession,
+  ): Promise<PaginatedResponse & { users: IUser[] }> {
     const queryData = clearObject({
       ...data,
       birthday: createFilterQuery(birthday),
       createdAt: createFilterQuery(createdAt),
-      isDeleted: includeDeleted(includeRemoved),
     });
 
-    const usersQuery = this.userModel.find(queryData);
+    const usersQuery = this.userModel.find(queryData, {}, { session });
 
-    const usersCount = await this.userModel.countDocuments(queryData);
+    const usersCount = await this.userModel.countDocuments(queryData, {
+      session,
+    });
 
     applyFilters(usersQuery, { select });
     const pagesData = paginate<UserSortFields>(usersQuery, {
@@ -117,28 +90,35 @@ export class UserService implements OnModuleInit {
   }
 
   async findOne(
-    userQuery: Partial<User>,
-    includeRemoved: boolean = true,
-  ): Promise<User | null> {
+    userQuery: Partial<IUser>,
+    session?: ClientSession,
+  ): Promise<IUser | null> {
     return this.userModel
-      .findOne({
-        ...userQuery,
-        isDeleted: includeDeleted(includeRemoved),
-      })
+      .findOne(
+        {
+          ...userQuery,
+        },
+        {},
+        { session },
+      )
       .lean()
       .exec();
   }
 
+  hardDelete(id: string, session?: ClientSession) {
+    return this.userModel.deleteOne({ _id: id }, { session });
+  }
+
   async onModuleInit() {
     const { email, password } = this.configService.getAdminAccount();
-    const user = await this.userModel.findOne({ email });
+    const user = await this.findOne({ email });
     if (user) {
       this.logger.log('Admin user already exists');
 
       return;
     }
 
-    this.userModel.create({
+    this.create({
       birthday: new Date(0),
       email,
       gender: Genders.MALE,
@@ -154,17 +134,27 @@ export class UserService implements OnModuleInit {
     return this.update(id, { isDeleted: false });
   }
 
+  softDelete(id: string, session?: ClientSession): Promise<IUser> {
+    const { deletedUserTtl } = this.configService.getSecurity();
+
+    return this.update(
+      id,
+      {
+        deletedAt: new Date(),
+        deletionDate: add(Date.now(), { seconds: deletedUserTtl }),
+        isDeleted: true,
+      },
+      session,
+    );
+  }
+
   async update(
     id: string,
-    data: Partial<User>,
-    includeRemoved: boolean = true,
-  ): Promise<User | null> {
+    data: Partial<IUser>,
+    session?: ClientSession,
+  ): Promise<IUser | null> {
     return this.userModel
-      .findOneAndUpdate(
-        { _id: id, isDeleted: includeDeleted(includeRemoved) },
-        data,
-        { new: true },
-      )
+      .findByIdAndUpdate(id, data, { new: true, session })
       .lean()
       .exec();
   }

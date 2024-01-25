@@ -1,10 +1,12 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { compare } from 'bcrypt';
+import { ClientSession } from 'mongoose';
 
-import { LoginDto, RegisterDto } from '~/auth/dto';
-import { IAccessTokenData, IFingerprint } from '~/auth/interfaces';
-import { TokenService } from '~/auth/token.service';
 import { UserService } from '~/user/user.service';
+
+import { LoginDto, RegisterDto } from './dto';
+import { IAccessTokenData, IFingerprint } from './interfaces';
+import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthService {
@@ -13,47 +15,68 @@ export class AuthService {
     private readonly tokenService: TokenService,
   ) {}
 
-  async login(loginDto: LoginDto, fingerprint: IFingerprint) {
-    const user = await this.userService.findOne({ email: loginDto.email });
+  async login(
+    loginDto: LoginDto,
+    fingerprint: IFingerprint,
+    session?: ClientSession,
+  ) {
+    const user = await this.userService.findOne(
+      { email: loginDto.email },
+      session,
+    );
 
     if (!user || !(await compare(loginDto.password, user.password))) {
-      throw new UnauthorizedException('wrong email or password');
+      return null;
     }
 
-    return await this.tokenService.generateTokens(user, fingerprint);
+    return this.tokenService.generateTokens(user, fingerprint);
   }
 
-  async logout(refreshToken: string) {
-    await this.tokenService.deleteRefreshToken(refreshToken);
+  async logout(refreshToken: string, session?: ClientSession) {
+    await this.tokenService.deleteRefreshToken(refreshToken, session);
   }
 
-  async refresh(refreshToken: string, fingerprint: IFingerprint) {
-    const refreshTokenData =
-      await this.tokenService.deleteRefreshToken(refreshToken);
-    const user = await this.userService.findById(refreshTokenData?.userId);
+  async refresh(
+    refreshToken: string,
+    fingerprint: IFingerprint,
+    session?: ClientSession,
+  ) {
+    const tokenData = await this.tokenService.deleteRefreshToken(
+      refreshToken,
+      session,
+    );
 
     if (
-      !refreshTokenData ||
-      refreshTokenData?.fingerprint?.userAgent !== fingerprint.userAgent ||
-      !user
+      !tokenData ||
+      tokenData?.fingerprint?.userAgent !== fingerprint.userAgent ||
+      !tokenData?.user
     ) {
-      throw new UnauthorizedException('invalid refresh session');
+      return null;
     }
 
-    return await this.tokenService.generateTokens(user, fingerprint);
+    return await this.tokenService.generateTokens(
+      tokenData.user,
+      fingerprint,
+      session,
+    );
   }
 
-  async register(registerDto: RegisterDto) {
-    return this.userService.create({
-      ...registerDto,
-      birthday: new Date(registerDto.birthday),
-    });
+  async register(registerDto: RegisterDto, session?: ClientSession) {
+    const user = await this.userService.create(
+      {
+        ...registerDto,
+        birthday: registerDto.birthday,
+      },
+      session,
+    );
+
+    return user;
   }
 
   async validateUser(payload: IAccessTokenData) {
     const user = await this.userService.findById(payload.id);
     if (!user || user.isBlocked) {
-      throw new UnauthorizedException();
+      return null;
     }
 
     return user;

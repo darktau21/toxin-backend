@@ -5,12 +5,14 @@ import { AppConfigService } from '~/config/app-config.service';
 export const mongooseModule = MongooseModule.forRootAsync({
   inject: [AppConfigService],
   useFactory: (configService: AppConfigService) => {
-    const { mongo } = configService.getDb();
+    const {
+      mongo: { database, host, password, port, replicaSet, user },
+    } = configService.getDb();
     return {
       uri:
-        !mongo.user || !mongo.password
-          ? `mongodb://${mongo.host}:${mongo.port}/${mongo.database}`
-          : `mongodb://${mongo.user}:${mongo.password}@${mongo.host}:${mongo.port}/${mongo.database}?authSource=admin`,
+        !user || !password
+          ? `mongodb://${host}:${port}/${database}?replicaSet=${replicaSet}`
+          : `mongodb://${user}:${password}@${host}:${port}/${database}?authSource=admin&replicaSet=${replicaSet}`,
     };
   },
 });

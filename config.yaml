@@ -3,8 +3,7 @@ db:
     host: 'mongo'
     port: 27017
     database: 'toxin'
-    user: ''
-    password: ''
+    replicaSet: 'rsDev'
 
   redis:
     host: 'redis'
@@ -21,7 +20,7 @@ security:
     accessSecret: 'super-secret-jwt-access-token'
   cookieSecret: 'super-secret-cookie-sign'
   secureCookie: false
-  deletedAccountTtl: 15_552_000
+  deletedUserTtl: 15_552_000
   emailConfirmationTime: 600
 
 adminAccount:

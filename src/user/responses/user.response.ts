@@ -7,7 +7,7 @@ import {
 import { formatISO } from 'date-fns';
 import mongoose from 'mongoose';
 
-import { Genders, Roles, User } from '~/user/schemas';
+import { Genders, IUser, Roles } from '~/user/interfaces';
 
 function hideDeleted(
   arg: ((params: TransformFnParams) => unknown) | TransformFnParams,
@@ -37,7 +37,7 @@ export class UserResponse {
 
   @Expose()
   @Transform(
-    hideDeleted(({ value }: { obj: User; value: Date }) =>
+    hideDeleted(({ value }: { obj: IUser; value: Date }) =>
       formatISO(value, { representation: 'date' }),
     ),
   )
@@ -86,7 +86,7 @@ export class UserResponse {
   @Transform(hideDeleted)
   role: Roles;
 
-  constructor(user: Partial<User>) {
+  constructor(user: Partial<IUser>) {
     Object.assign(this, user);
   }
 }
