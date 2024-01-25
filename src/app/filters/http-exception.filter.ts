@@ -8,7 +8,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 
-import type { ResponseWrapper } from '~/app/types';
+import { ResponseStatus, ResponseWrapper } from '~/app/responses';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -21,13 +21,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     const result: ResponseWrapper<unknown> = {
       data: { message: 'Unrecognized exception' },
-      status: 'fail',
+      status: ResponseStatus.FAIL,
     };
 
     if (statusCode >= 500) {
       return response.code(statusCode).send({
         message: 'Something went wrong',
-        status: 'error',
+        status: ResponseStatus.ERROR,
       } satisfies ResponseWrapper<unknown>);
     }
 
