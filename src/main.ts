@@ -54,12 +54,11 @@ async function bootstrap() {
     });
   }
 
-  const configService: AppConfigService = app.get(AppConfigService);
+  const configService = app.get(AppConfigService);
   if (process.env.NODE_ENV === 'development') {
     app.useLogger(console);
   }
 
-  console.log(resolve(__dirname, '..', 'public'));
   app.useStaticAssets({ root: resolve(__dirname, '..', 'public') });
 
   app.useGlobalFilters(new HttpExceptionFilter());
@@ -79,6 +78,7 @@ async function bootstrap() {
         throw new BadRequestException(errors);
       },
       forbidNonWhitelisted: true,
+      forbidUnknownValues: true,
       transform: true,
       whitelist: true,
     }),

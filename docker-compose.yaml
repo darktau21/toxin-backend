@@ -29,6 +29,14 @@ services:
       - '27017:27017'
     volumes:
       - ./data/db:/data/db
+    command: ['--replSet', 'rsDev', '--bind_ip_all']
+  mongoinit:
+    image: mongo:7.0
+    restart: "no"
+    depends_on:
+      - mongo
+    command: >
+      mongosh --host mongo:27017 --eval 'rs.initiate();'
   redis:
     image: redis:7.2
     container_name: toxin-redis
