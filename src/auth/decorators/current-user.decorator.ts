@@ -1,13 +1,9 @@
 import { ExecutionContext, createParamDecorator } from '@nestjs/common';
 import { FastifyRequest } from 'fastify';
 
-import { IAccessTokenData } from '~/auth/interfaces';
-
 export const CurrentUser = createParamDecorator(
-  (_: never, ctx: ExecutionContext) => {
-    const request = ctx
-      .switchToHttp()
-      .getRequest<FastifyRequest & { user?: IAccessTokenData }>();
+  (_: never, context: ExecutionContext) => {
+    const request = context.switchToHttp().getRequest<FastifyRequest>();
 
     return request.user;
   },

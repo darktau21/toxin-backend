@@ -1,7 +1,9 @@
-import { SetMetadata } from '@nestjs/common';
+import { ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 
 import { Roles } from '~/user/interfaces';
 
-export const ROLES_METADATA_KEY = 'roles';
-export const Role = (...roles: Roles[]) =>
-  SetMetadata(ROLES_METADATA_KEY, roles);
+export const Role = Reflector.createDecorator<Roles | Roles[]>();
+
+export const getRoles = (context: ExecutionContext, reflector: Reflector) =>
+  reflector.getAllAndMerge(Role, [context.getHandler(), context.getClass()]);

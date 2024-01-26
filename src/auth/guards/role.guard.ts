@@ -2,29 +2,25 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { FastifyRequest } from 'fastify';
 
-import { ROLES_METADATA_KEY } from '~/auth/decorators';
-import { Roles } from '~/user/interfaces';
-
-import { IAccessTokenData } from '../interfaces';
+import { getRoles } from '~/auth/decorators';
 
 @Injectable()
 export class RoleGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const roles = this.reflector.getAllAndOverride<Roles[]>(
-      ROLES_METADATA_KEY,
-      [context.getHandler(), context.getClass()],
-    );
+    const roles = getRoles(context, this.reflector);
 
-    if (!roles || !roles.length) {
+    if (!roles) {
       return true;
     }
 
-    const { user } = context
-      .switchToHttp()
-      .getRequest<FastifyRequest & { user: IAccessTokenData }>();
+    const { user } = context.switchToHttp().getRequest<FastifyRequest>();
 
-    return roles.includes(user?.role);
+    if (Array.isArray(roles)) {
+      return roles.includes(user?.role);
+    }
+
+    return roles === user.role;
   }
 }
