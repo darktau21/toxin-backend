@@ -2,7 +2,7 @@ import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 
-import { AccountModule } from '~/account/account.module';
+// import { AccountModule } from '~/account/account.module';
 import { dynamicModules } from '~/app/modules';
 import { AuthModule } from '~/auth/auth.module';
 import { JwtAuthGuard, RoleGuard } from '~/auth/guards';
