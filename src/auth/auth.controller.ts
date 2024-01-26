@@ -14,7 +14,7 @@ import { FastifyReply } from 'fastify';
 import { ClientSession } from 'mongoose';
 
 import { Transaction } from '~/app/decorators';
-import { WithTransactionInterceptor } from '~/app/interceptors';
+import { FormatResponse, WithTransactionInterceptor } from '~/app/interceptors';
 import { AuthService } from '~/auth/auth.service';
 import { Cookie, Fingerprint, Public } from '~/auth/decorators';
 import { LoginDto, RegisterDto } from '~/auth/dto';
@@ -24,6 +24,8 @@ import { EmailService } from '~/email/email.service';
 import { MailService } from '~/mail/mail.service';
 
 import { UnauthorizedGuard } from './guards';
+import { ITokens } from './interfaces/tokens.interface';
+import { AccessTokenResponse } from './responses';
 
 @ApiTags('Авторизация')
 @Controller('auth')
@@ -37,7 +39,7 @@ export class AuthController {
   ) {}
 
   private setCookieToken(
-    tokens: Awaited<ReturnType<typeof this.authService.login>>,
+    tokens: Pick<ITokens, 'refreshToken' | 'refreshTokenData'>,
     res: FastifyReply,
   ) {
     const { secureCookie } = this.configService.getSecurity();
@@ -53,6 +55,7 @@ export class AuthController {
 
   @Post('login')
   @UseGuards(UnauthorizedGuard)
+  @UseInterceptors(new FormatResponse(AccessTokenResponse))
   async login(
     @Body() loginDto: LoginDto,
     @Fingerprint() fingerprint: IFingerprint,
@@ -65,7 +68,7 @@ export class AuthController {
 
     this.setCookieToken(tokens, res);
 
-    return { accessToken: tokens.accessToken };
+    return tokens;
   }
 
   @ApiBearerAuth()
@@ -84,11 +87,15 @@ export class AuthController {
       sameSite: 'lax',
       secure: secureCookie,
     });
+
     return null;
   }
 
   @Get('refresh')
-  @UseInterceptors(WithTransactionInterceptor)
+  @UseInterceptors(
+    WithTransactionInterceptor,
+    new FormatResponse(AccessTokenResponse),
+  )
   async refresh(
     @Cookie(REFRESH_TOKEN_COOKIE) refreshToken: string,
     @Fingerprint() fp: IFingerprint,
@@ -102,13 +109,16 @@ export class AuthController {
 
     this.setCookieToken(tokens, res);
 
-    return { accessToken: tokens.accessToken };
+    return tokens;
   }
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(UnauthorizedGuard)
-  @UseInterceptors(WithTransactionInterceptor)
+  @UseInterceptors(
+    WithTransactionInterceptor,
+    new FormatResponse(AccessTokenResponse),
+  )
   async register(
     @Body() registerDto: RegisterDto,
     @Fingerprint() fingerprint: IFingerprint,
@@ -132,6 +142,6 @@ export class AuthController {
     );
     this.setCookieToken(tokens, res);
 
-    return { accessToken: tokens.accessToken };
+    return tokens;
   }
 }

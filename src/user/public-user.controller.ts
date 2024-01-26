@@ -7,31 +7,38 @@ import {
   Query,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { ObjectId } from 'mongodb';
 
+import { FormatResponse } from '~/app/interceptors';
+import { Public } from '~/auth/decorators';
 import { SortUsersQueryDto } from '~/user/dto';
 import { UserResponse } from '~/user/responses';
 import { UserService } from '~/user/user.service';
 
+const USER_RESPONSE_FIELD_NAME = 'user';
+const USERS_RESPONSE_FIELD_NAME = 'users';
+
+@Controller('user')
 @ApiTags('Публичное api пользователей')
 @UseInterceptors(CacheInterceptor)
-@Controller('user')
+@Public()
 export class PublicUserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
+  @UseInterceptors(new FormatResponse(UserResponse, USER_RESPONSE_FIELD_NAME))
   async getAllUsers(@Query() query: SortUsersQueryDto) {
-    const { users, ...pageData } = await this.userService.findMany(query);
-    return { users: users.map((user) => new UserResponse(user)), ...pageData };
+    return this.userService.findMany(query);
   }
 
   @Get(':id')
+  @UseInterceptors(new FormatResponse(UserResponse, USERS_RESPONSE_FIELD_NAME))
   async getUser(@Param('id') id: string) {
     if (!ObjectId.isValid(id)) {
       throw new BadRequestException('Invalid id string');
     }
-    const user = await this.userService.findById(id);
-    return { user: user ? new UserResponse(user) : null };
+
+    return this.userService.findById(id);
   }
 }

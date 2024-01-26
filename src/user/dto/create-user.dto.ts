@@ -13,9 +13,9 @@ import {
 } from 'class-validator';
 
 import { IsUniqueUserField } from '~/user/decorators';
-import { Genders, Roles } from '~/user/interfaces';
+import { Genders, IUser, Roles } from '~/user/interfaces';
 
-export class CreateUserDto {
+export class CreateUserDto implements Partial<IUser> {
   @ApiProperty({
     description: 'Дата рождения пользователя в формате "ГГГГ-ММ-ДД"',
     type: String,

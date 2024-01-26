@@ -5,10 +5,15 @@ import { add } from 'date-fns';
 import { ClientSession, Model } from 'mongoose';
 import { v4 } from 'uuid';
 
-import { IAccessTokenData, IRefreshTokenData } from '~/auth/interfaces';
+import {
+  IAccessTokenData,
+  IFingerprint,
+  IRefreshTokenData,
+} from '~/auth/interfaces';
 import { AppConfigService } from '~/config/app-config.service';
 import { IUser } from '~/user/interfaces';
 
+import { ITokens } from './interfaces/tokens.interface';
 import { Fingerprint, REFRESH_TOKEN_DATA_SCHEMA_NAME } from './schemas';
 
 @Injectable()
@@ -26,7 +31,7 @@ export class TokenService {
 
   private async generateRefreshToken(
     userId: string,
-    fingerprint: Fingerprint,
+    fingerprint: IFingerprint,
     session?: ClientSession,
   ) {
     const { tokens: config } = this.configService.getSecurity();
@@ -69,7 +74,7 @@ export class TokenService {
     user: Pick<IUser, '_id' | 'email' | 'role'>,
     fingerprint: Fingerprint,
     session?: ClientSession,
-  ) {
+  ): Promise<ITokens> {
     const accessToken = await this.generateAccessToken({
       email: user.email,
       id: user._id.toString(),

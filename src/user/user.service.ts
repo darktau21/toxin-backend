@@ -64,7 +64,7 @@ export class UserService implements OnModuleInit {
       ...data
     }: SortUsersQueryDto,
     session?: ClientSession,
-  ): Promise<PaginatedResponse & { users: IUser[] }> {
+  ): Promise<PaginatedResponse<IUser>> {
     const queryData = clearObject({
       ...data,
       birthday: createFilterQuery(birthday),
@@ -86,7 +86,7 @@ export class UserService implements OnModuleInit {
     });
 
     const users = await usersQuery.lean().exec();
-    return { ...pagesData, users };
+    return [users, pagesData];
   }
 
   async findOne(

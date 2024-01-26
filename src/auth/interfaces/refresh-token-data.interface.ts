@@ -7,6 +7,6 @@ export const REFRESH_TOKEN_COOKIE = 'refreshToken';
 export interface IRefreshTokenData {
   expiresIn: Date;
   fingerprint: IFingerprint;
-  refreshToken: string;
+  refreshToken?: string;
   user: IUser;
 }
