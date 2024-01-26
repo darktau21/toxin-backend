@@ -10,7 +10,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { ObjectId } from 'mongodb';
 
-import { FormatResponse } from '~/app/interceptors';
+import { FormatResponse } from '~/app/decorators';
 import { Public } from '~/auth/decorators';
 import { SortUsersQueryDto } from '~/user/dto';
 import { UserResponse } from '~/user/responses';
@@ -27,13 +27,13 @@ export class PublicUserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  @UseInterceptors(new FormatResponse(UserResponse, USER_RESPONSE_FIELD_NAME))
+  @FormatResponse(UserResponse, USERS_RESPONSE_FIELD_NAME)
   async getAllUsers(@Query() query: SortUsersQueryDto) {
     return this.userService.findMany(query);
   }
 
   @Get(':id')
-  @UseInterceptors(new FormatResponse(UserResponse, USERS_RESPONSE_FIELD_NAME))
+  @FormatResponse(UserResponse, USER_RESPONSE_FIELD_NAME)
   async getUser(@Param('id') id: string) {
     if (!ObjectId.isValid(id)) {
       throw new BadRequestException('Invalid id string');

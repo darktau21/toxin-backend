@@ -13,8 +13,8 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { FastifyReply } from 'fastify';
 import { ClientSession } from 'mongoose';
 
-import { Transaction } from '~/app/decorators';
-import { FormatResponse, WithTransactionInterceptor } from '~/app/interceptors';
+import { FormatResponse, Transaction } from '~/app/decorators';
+import { WithTransactionInterceptor } from '~/app/interceptors';
 import { AuthService } from '~/auth/auth.service';
 import { Cookie, Fingerprint, Public } from '~/auth/decorators';
 import { LoginDto, RegisterDto } from '~/auth/dto';
@@ -55,7 +55,7 @@ export class AuthController {
 
   @Post('login')
   @UseGuards(UnauthorizedGuard)
-  @UseInterceptors(new FormatResponse(AccessTokenResponse))
+  @FormatResponse(AccessTokenResponse)
   async login(
     @Body() loginDto: LoginDto,
     @Fingerprint() fingerprint: IFingerprint,
@@ -92,10 +92,8 @@ export class AuthController {
   }
 
   @Get('refresh')
-  @UseInterceptors(
-    WithTransactionInterceptor,
-    new FormatResponse(AccessTokenResponse),
-  )
+  @UseInterceptors(WithTransactionInterceptor)
+  @FormatResponse(AccessTokenResponse)
   async refresh(
     @Cookie(REFRESH_TOKEN_COOKIE) refreshToken: string,
     @Fingerprint() fp: IFingerprint,
@@ -115,10 +113,8 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(UnauthorizedGuard)
-  @UseInterceptors(
-    WithTransactionInterceptor,
-    new FormatResponse(AccessTokenResponse),
-  )
+  @UseInterceptors(WithTransactionInterceptor)
+  @FormatResponse(AccessTokenResponse)
   async register(
     @Body() registerDto: RegisterDto,
     @Fingerprint() fingerprint: IFingerprint,

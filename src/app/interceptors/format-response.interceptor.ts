@@ -1,36 +1,47 @@
-import { CallHandler, ExecutionContext, NestInterceptor } from '@nestjs/common';
-import { ClassConstructor } from 'class-transformer';
+import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  NestInterceptor,
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { map } from 'rxjs';
 
 import { type PaginatedResponse } from '~/app/utils';
 
+import { getResponseFormatMetadata } from '../decorators';
+
 type IncomingData<T> = PaginatedResponse<T> | T | null;
 
-export class FormatResponse<T> implements NestInterceptor {
-  constructor(
-    private readonly responseConstructor: ClassConstructor<T>,
-    private readonly fieldName?: string,
-  ) {}
+@Injectable()
+export class FormatResponseInterceptor<T> implements NestInterceptor {
+  constructor(private readonly reflector: Reflector) {}
 
-  intercept(_: ExecutionContext, next: CallHandler) {
+  intercept(context: ExecutionContext, next: CallHandler) {
+    const metadata = getResponseFormatMetadata(context, this.reflector);
+
     return next.handle().pipe(
       map<IncomingData<T>, any>((data) => {
+        if (!metadata) {
+          return data;
+        }
+
+        const { fieldName, responseConstructor } = metadata;
+
         if (!data) {
-          return this.fieldName ? { [this.fieldName]: null } : null;
+          return fieldName ? { [fieldName]: null } : null;
         }
 
         if (Array.isArray(data)) {
           return {
             ...data[1],
-            [this.fieldName]: data[0].map(
-              (item) => new this.responseConstructor(item),
-            ),
+            [fieldName]: data[0].map((item) => new responseConstructor(item)),
           };
         }
 
-        return this.fieldName
-          ? { [this.fieldName]: new this.responseConstructor(data) }
-          : new this.responseConstructor(data);
+        return fieldName
+          ? { [fieldName]: new responseConstructor(data) }
+          : new responseConstructor(data);
       }),
     );
   }
