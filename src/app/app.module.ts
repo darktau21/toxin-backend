@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { ClassSerializerInterceptor, Module } from '@nestjs/common';
+import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 
 import { AccountModule } from '~/account/account.module';
@@ -11,10 +11,16 @@ import { EmailModule } from '~/email/email.module';
 import { MailModule } from '~/mail/mail.module';
 import { UserModule } from '~/user/user.module';
 
+import {
+  FormatResponseInterceptor,
+  ResponseWrapperInterceptor,
+} from './interceptors';
+import { AppValidationPipe, ParseQueryPipe } from './pipes';
+
 @Module({
   imports: [
     ...dynamicModules,
-    AccountModule,
+    // AccountModule,
     AppConfigModule,
     AuthModule,
     EmailModule,
@@ -25,6 +31,11 @@ import { UserModule } from '~/user/user.module';
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RoleGuard },
+    { provide: APP_INTERCEPTOR, useClass: ClassSerializerInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: ResponseWrapperInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: FormatResponseInterceptor },
+    { provide: APP_PIPE, useClass: ParseQueryPipe },
+    { provide: APP_PIPE, useClass: AppValidationPipe },
   ],
 })
 export class AppModule {}

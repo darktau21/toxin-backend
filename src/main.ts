@@ -1,18 +1,13 @@
 import { FastifyCookieOptions } from '@fastify/cookie';
 import fastifyCookiePlugin from '@fastify/cookie';
-import {
-  BadRequestException,
-  ClassSerializerInterceptor,
-  ValidationPipe,
-  VersioningType,
-} from '@nestjs/common';
-import { NestFactory, Reflector } from '@nestjs/core';
+import { VersioningType } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationError, useContainer } from 'class-validator';
+import { useContainer } from 'class-validator';
 import { writeFile } from 'fs/promises';
 import { SpelunkerModule } from 'nestjs-spelunker';
 import { resolve } from 'path';
@@ -20,8 +15,6 @@ import * as process from 'process';
 
 import { AppModule } from '~/app/app.module';
 import { HttpExceptionFilter } from '~/app/filters';
-import { ResponseWrapperInterceptor } from '~/app/interceptors';
-import { ParseQueryPipe } from '~/app/pipes';
 
 import { AppConfigService } from './config/app-config.service';
 
@@ -62,31 +55,6 @@ async function bootstrap() {
   app.useStaticAssets({ root: resolve(__dirname, '..', 'public') });
 
   app.useGlobalFilters(new HttpExceptionFilter());
-
-  app.useGlobalPipes(
-    new ParseQueryPipe(),
-    new ValidationPipe({
-      exceptionFactory: (validationErrors: ValidationError[]) => {
-        const errors: Record<string, string[]> = {};
-
-        validationErrors.forEach((validationError) => {
-          errors[validationError.property] = Object.values(
-            validationError.constraints,
-          );
-        });
-
-        throw new BadRequestException(errors);
-      },
-      forbidNonWhitelisted: true,
-      forbidUnknownValues: true,
-      transform: true,
-      whitelist: true,
-    }),
-  );
-  app.useGlobalInterceptors(
-    new ClassSerializerInterceptor(app.get(Reflector)),
-    new ResponseWrapperInterceptor(),
-  );
 
   const { cookieSecret } = configService.getSecurity();
 
