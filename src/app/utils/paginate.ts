@@ -23,4 +23,7 @@ export function paginate<TSort extends string = string>(
   return { currentPage: page, isLastPage, pagesCount };
 }
 
-export type PaginatedResponse = ReturnType<typeof paginate>;
+export type PaginatedResponse<T> = [
+  result: T[],
+  pagesInfo: ReturnType<typeof paginate>,
+];
