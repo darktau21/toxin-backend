@@ -8,7 +8,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 
-import { ResponseStatus, ResponseWrapper } from '~/app/responses';
+import { ResponseStatus, ResponseWrapper } from '../responses';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {

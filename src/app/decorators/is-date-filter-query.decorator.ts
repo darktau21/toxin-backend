@@ -1,6 +1,6 @@
 import { type ValidationOptions, registerDecorator } from 'class-validator';
 
-import { IsDateFilterQueryConstraint } from '~/app/constraints';
+import { IsDateFilterQueryConstraint } from '../constraints';
 
 export function IsDateFilterObject<T extends object>(
   validationOptions?: ValidationOptions,

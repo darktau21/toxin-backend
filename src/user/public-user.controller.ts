@@ -12,9 +12,7 @@ import { ObjectId } from 'mongodb';
 
 import { FormatResponse } from '~/app/decorators';
 import { Public } from '~/auth/decorators';
-import { SortUsersQueryDto } from '~/user/dto';
-import { UserResponse } from '~/user/responses';
-import { UserService } from '~/user/user.service';
+import { SortUsersQueryDto } from './dto';
 
 const USER_RESPONSE_FIELD_NAME = 'user';
 const USERS_RESPONSE_FIELD_NAME = 'users';

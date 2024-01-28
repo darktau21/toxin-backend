@@ -12,8 +12,8 @@ import {
   paginate,
 } from '~/app/utils';
 import { AppConfigService } from '~/config/app-config.service';
-import { SortUsersQueryDto, UserSortFields } from '~/user/dto';
 
+import { SortUsersQueryDto, UserSortFields } from './dto';
 import { Genders, IUser, Roles } from './interfaces';
 import { USER_SCHEMA_NAME } from './schemas';
 

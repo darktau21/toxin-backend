@@ -12,8 +12,8 @@ import {
   MinLength,
 } from 'class-validator';
 
-import { IsUniqueUserField } from '~/user/decorators';
-import { Genders, IUser, Roles } from '~/user/interfaces';
+import { IsUniqueUserField } from '../decorators';
+import { Genders, IUser, Roles } from '../interfaces';
 
 export class CreateUserDto implements Partial<IUser> {
   @ApiProperty({

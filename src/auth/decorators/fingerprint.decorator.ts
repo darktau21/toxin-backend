@@ -2,7 +2,7 @@ import { ExecutionContext, createParamDecorator } from '@nestjs/common';
 import { FastifyRequest } from 'fastify';
 import { lookup } from 'geoip-lite';
 
-import { IFingerprint } from '~/auth/interfaces';
+import { IFingerprint } from '../interfaces';
 
 export const Fingerprint = createParamDecorator(
   (_: unknown, context: ExecutionContext): IFingerprint => {

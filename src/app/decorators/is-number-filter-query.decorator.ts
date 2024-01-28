@@ -1,6 +1,6 @@
 import { type ValidationOptions, registerDecorator } from 'class-validator';
 
-import { IsNumberFilterQueryConstraint } from '~/app/constraints';
+import { IsNumberFilterQueryConstraint } from '../constraints';
 
 export function IsNumberFilterObject<T extends object>(
   validationOptions?: ValidationOptions,

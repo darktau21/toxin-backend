@@ -6,7 +6,7 @@ import * as yaml from 'js-yaml';
 import * as path from 'path';
 import * as process from 'process';
 
-import { ConfigSchema } from '~/config/schemas';
+import { ConfigSchema } from '../schemas';
 
 const configLoader = <T>(configPath: string) => {
   let cache: T;

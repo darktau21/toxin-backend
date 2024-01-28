@@ -4,11 +4,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { AppConfigService } from '~/config/app-config.service';
 import { MailModule } from '~/mail/mail.module';
-import { PublicUserController } from '~/user/public-user.controller';
-import { UserService } from '~/user/user.service';
 
 import { IsUniqueUserFieldConstraint } from './constraints';
+import { PublicUserController } from './public-user.controller';
 import { USER_SCHEMA_NAME, UserSchemaFactory } from './schemas';
+import { UserService } from './user.service';
 
 @Module({
   controllers: [PublicUserController],

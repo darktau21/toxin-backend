@@ -5,7 +5,7 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 
-import { UserService } from '~/user/user.service';
+import { UserService } from '../user.service';
 
 @ValidatorConstraint({ async: true, name: 'isUniqueUserField' })
 @Injectable()

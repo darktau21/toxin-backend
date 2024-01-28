@@ -2,7 +2,7 @@ import { Exclude, Expose, Transform } from 'class-transformer';
 import mongoose from 'mongoose';
 
 import { excludeDeleted, exposeDeleted } from '~/app/utils';
-import { Genders, IUser, Roles } from '~/user/interfaces';
+import { Genders, IUser, Roles } from '../interfaces';
 
 @Exclude()
 export class UserResponse implements Partial<IUser> {

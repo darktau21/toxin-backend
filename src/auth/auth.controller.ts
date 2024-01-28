@@ -15,16 +15,15 @@ import { ClientSession } from 'mongoose';
 
 import { FormatResponse, Transaction } from '~/app/decorators';
 import { WithTransactionInterceptor } from '~/app/interceptors';
-import { AuthService } from '~/auth/auth.service';
-import { Cookie, Fingerprint, Public } from '~/auth/decorators';
-import { LoginDto, RegisterDto } from '~/auth/dto';
-import { IFingerprint, REFRESH_TOKEN_COOKIE } from '~/auth/interfaces';
 import { AppConfigService } from '~/config/app-config.service';
 import { EmailService } from '~/email/email.service';
 import { MailService } from '~/mail/mail.service';
 
+import { AuthService } from './auth.service';
+import { Cookie, Fingerprint, Public } from './decorators';
+import { LoginDto, RegisterDto } from './dto';
 import { UnauthorizedGuard } from './guards';
-import { ITokens } from './interfaces/tokens.interface';
+import { IFingerprint, ITokens, REFRESH_TOKEN_COOKIE } from './interfaces';
 import { AccessTokenResponse } from './responses';
 
 @ApiTags('Авторизация')

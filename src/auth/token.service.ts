@@ -5,15 +5,15 @@ import { add } from 'date-fns';
 import { ClientSession, Model } from 'mongoose';
 import { v4 } from 'uuid';
 
+import { AppConfigService } from '~/config/app-config.service';
+import { IUser } from '~/user/interfaces';
+
 import {
   IAccessTokenData,
   IFingerprint,
   IRefreshTokenData,
-} from '~/auth/interfaces';
-import { AppConfigService } from '~/config/app-config.service';
-import { IUser } from '~/user/interfaces';
-
-import { ITokens } from './interfaces/tokens.interface';
+  ITokens,
+} from './interfaces';
 import { Fingerprint, REFRESH_TOKEN_DATA_SCHEMA_NAME } from './schemas';
 
 @Injectable()

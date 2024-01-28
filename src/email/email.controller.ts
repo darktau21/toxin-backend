@@ -16,7 +16,7 @@ import { WithTransactionInterceptor } from '~/app/interceptors';
 import { CurrentUser } from '~/auth/decorators';
 import { IAccessTokenData } from '~/auth/interfaces';
 
-import { EmailDto } from './dto/email.dto';
+import { EmailDto } from './dto';
 import { EmailService } from './email.service';
 
 @Controller('email')

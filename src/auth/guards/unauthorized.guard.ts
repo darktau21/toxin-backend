@@ -7,7 +7,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 
-import { REFRESH_TOKEN_COOKIE } from '~/auth/interfaces';
+import { REFRESH_TOKEN_COOKIE } from '../interfaces';
 
 @Injectable()
 export class UnauthorizedGuard implements CanActivate {

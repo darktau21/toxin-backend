@@ -1,10 +1,11 @@
 import { CacheModule } from '@nestjs/cache-manager';
-import { RedisModule, RedisService } from '@songkeys/nestjs-redis';
+import { RedisService } from '@songkeys/nestjs-redis';
 import { Config } from 'cache-manager';
 import { redisInsStore } from 'cache-manager-ioredis-yet';
 
-import { REDIS_CACHE } from '~/app/modules/redis.module';
 import { AppConfigService } from '~/config/app-config.service';
+
+import { REDIS_CACHE } from '../modules';
 
 export const cacheModule = CacheModule.registerAsync<Config>({
   inject: [RedisService, AppConfigService],

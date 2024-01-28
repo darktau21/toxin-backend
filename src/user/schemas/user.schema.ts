@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 
-import { Genders, IUser, Roles } from '~/user/interfaces';
+import { Genders, IUser, Roles } from '../interfaces';
 
 export const USER_SCHEMA_NAME = 'USER';
 
