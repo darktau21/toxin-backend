@@ -13,6 +13,8 @@ export const UserSchemaFactory = (userDeleteTtl: number) => {
     @Prop({ type: Date })
     birthday: Date | string;
 
+    createdAt: Date | string;
+
     @Prop({ expires: userDeleteTtl, type: Date })
     deletedAt?: Date | string;
 
