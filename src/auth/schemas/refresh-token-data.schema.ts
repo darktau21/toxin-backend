@@ -7,7 +7,7 @@ import { USER_SCHEMA_NAME } from '~/user/schemas';
 import { IRefreshTokenData } from '../interfaces';
 import { Fingerprint, FingerprintSchema } from './fingerprint.schema';
 
-export const REFRESH_TOKEN_DATA_SCHEMA_NAME = 'REFRESH_TOKEN_DATA';
+export const REFRESH_TOKEN_DATA_SCHEMA_NAME = 'schema:refreshTokenData';
 export const RefreshTokenDataSchemaFactory = (refreshTokenTtl: number) => {
   @Schema({ timestamps: true, versionKey: false })
   class RefreshTokenData implements IRefreshTokenData {

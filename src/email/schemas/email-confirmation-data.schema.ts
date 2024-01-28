@@ -2,7 +2,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 import { IEmailConfirmationData } from '../interfaces';
 
-export const EMAIL_CONFIRMATION_DATA_SCHEMA_NAME = 'EMAIL_CONFIRMATION_DATA';
+export const EMAIL_CONFIRMATION_DATA_SCHEMA_NAME =
+  'schema:emailConfirmationData';
 
 export const EmailConfirmationDataSchemaFactory = (
   emailConfirmationTtl: number,

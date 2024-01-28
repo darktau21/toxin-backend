@@ -3,7 +3,7 @@ import { Types } from 'mongoose';
 
 import { Genders, IUser, Roles } from '../interfaces';
 
-export const USER_SCHEMA_NAME = 'USER';
+export const USER_SCHEMA_NAME = 'schema:user';
 
 export const UserSchemaFactory = (userDeleteTtl: number) => {
   @Schema({ timestamps: true, versionKey: false })
