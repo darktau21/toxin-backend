@@ -8,7 +8,8 @@ import { Genders, IUser, Roles } from '../interfaces';
 export class UserResponse implements Partial<IUser> {
   @Expose({ name: 'id' })
   @Transform(({ value }) => value.toString())
-  _id?: mongoose.Types.ObjectId;
+  @Expose()
+  createdAt?: Date;
 
   @Expose()
   @Transform(exposeDeleted)

@@ -8,6 +8,8 @@ export interface IUser {
 
   birthday: Date | string;
 
+  createdAt: Date | string;
+
   deletedAt?: Date | string;
 
   deletionDate?: Date | string;
