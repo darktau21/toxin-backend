@@ -16,10 +16,10 @@ export const FormatResponse = <T>(
   SetMetadata(FORMAT_RESPONSE_METADATA_KEY, { fieldName, responseConstructor });
 
 export const getResponseFormatMetadata = (
-  ctx: ExecutionContext,
+  context: ExecutionContext,
   reflector: Reflector,
 ) =>
   reflector.getAllAndOverride<ResponseFormatMetadata<unknown>>(
     FORMAT_RESPONSE_METADATA_KEY,
-    [ctx.getHandler(), ctx.getClass()],
+    [context.getHandler(), context.getClass()],
   );

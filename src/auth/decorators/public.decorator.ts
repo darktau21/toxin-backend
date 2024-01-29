@@ -3,8 +3,8 @@ import { Reflector } from '@nestjs/core';
 
 export const Public = Reflector.createDecorator({ transform: () => true });
 
-export const isPublic = (ctx: ExecutionContext, reflector: Reflector) =>
+export const isPublic = (context: ExecutionContext, reflector: Reflector) =>
   reflector.getAllAndOverride<boolean>(Public, [
-    ctx.getHandler(),
-    ctx.getClass(),
+    context.getHandler(),
+    context.getClass(),
   ]);
