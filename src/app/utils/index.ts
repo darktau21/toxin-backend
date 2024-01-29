@@ -6,3 +6,6 @@ export * from './async-random-int';
 export * from './async-random-bytes';
 export * from './transform-deleted';
 export * from './generate-mermaid-graph';
+export * from './get-class-property-names';
+export * from './get-sort-fields';
+export * from './union-from-tuple';
