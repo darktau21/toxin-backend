@@ -28,7 +28,6 @@ module.exports = {
     '@darraghor/nestjs-typed/injectable-should-be-provided': [
       'error',
       {
-        src: ['src/**/*.{ts,tsx}'],
         filterFromPaths: ['node_modules', '.test.', '.spec.'],
       },
     ],

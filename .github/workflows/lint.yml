@@ -40,8 +40,8 @@ jobs:
           auto_fix: true
           eslint: true
           prettier: true
-          eslint_extensions: js,ts
-          prettier_extensions: js,ts
+          eslint_extensions: js,ts,tsx
+          prettier_extensions: js,ts,tsx
           eslint_dir: src/
           eslint_args: '-c ../.eslintrc.js'
           prettier_dir: src/
