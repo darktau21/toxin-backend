@@ -1,8 +1,11 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Exclude, Expose, Transform } from 'class-transformer';
-import mongoose from 'mongoose';
+import { Types } from 'mongoose';
 
 import { excludeDeleted, exposeDeleted } from '~/app/utils';
+
 import { Genders, IUser, Roles } from '../interfaces';
+
 export const USER_RESPONSE_FIELD_NAME = 'user';
 export const USERS_RESPONSE_FIELD_NAME = 'users';
 
@@ -10,40 +13,78 @@ export const USERS_RESPONSE_FIELD_NAME = 'users';
 export class UserResponse implements Partial<IUser> {
   @Expose({ name: 'id' })
   @Transform(({ value }) => value.toString())
+  @ApiPropertyOptional({
+    name: 'id',
+    type: String,
+  })
+  _id?: Types.ObjectId;
+
   @Expose()
+  @Transform(excludeDeleted)
+  @ApiPropertyOptional({ description: 'Дата рождения', type: String })
+  birthday?: Date;
+
+  @Expose()
+  @ApiPropertyOptional({ description: 'Дата создания аккаунта', type: String })
   createdAt?: Date;
 
   @Expose()
   @Transform(exposeDeleted)
-  deletedAt: string;
+  @ApiPropertyOptional({ description: 'Дата удаления', type: String })
+  deletedAt?: string;
 
   @Expose()
   @Transform(exposeDeleted)
-  deletionDate: string;
+  @ApiPropertyOptional({
+    description: 'Дата удаления без возможности восстановления',
+    type: String,
+  })
+  deletionDate?: string;
 
   @Expose()
   @Transform(excludeDeleted)
-  gender: Genders;
+  @ApiPropertyOptional({
+    description: 'Пол',
+    enum: Genders,
+    enumName: 'Genders',
+    type: String,
+  })
+  gender?: Genders;
+
+  @Expose()
+  @Transform(excludeDeleted)
+  @ApiPropertyOptional({ description: 'Аккаунт заблокирован', type: Boolean })
+  isBlocked?: boolean;
 
   @Expose()
   @Transform(exposeDeleted)
-  isDeleted: boolean;
+  @ApiPropertyOptional({ description: 'Аккаунт удален', type: Boolean })
+  isDeleted?: boolean;
 
   @Expose()
   @Transform(excludeDeleted)
-  isVerified: boolean;
+  @ApiPropertyOptional({ description: 'Аккаунт подтвержден', type: Boolean })
+  isVerified?: boolean;
 
   @Expose()
   @Transform(excludeDeleted)
-  lastName: string;
+  @ApiPropertyOptional({ description: 'Фамилия', type: String })
+  lastName?: string;
 
   @Expose()
   @Transform(excludeDeleted)
-  name: string;
+  @ApiPropertyOptional({ description: 'Имя', type: String })
+  name?: string;
 
   @Expose()
   @Transform(excludeDeleted)
-  role: Roles;
+  @ApiPropertyOptional({
+    description: 'Роль',
+    enum: Roles,
+    enumName: 'Roles',
+    type: String,
+  })
+  role?: Roles;
 
   constructor(user: Partial<IUser>) {
     Object.assign(this, user);
