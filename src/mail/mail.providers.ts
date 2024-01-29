@@ -3,7 +3,7 @@ import { createTransport } from 'nodemailer';
 
 import { AppConfigService } from '~/config/app-config.service';
 
-export const MAIL_TRANSPORT = 'MAIL_TRANSPORT';
+export const MAIL_TRANSPORT = 'provider:mailTransport';
 
 export const mailProviders: Provider[] = [
   {

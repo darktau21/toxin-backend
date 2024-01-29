@@ -7,7 +7,7 @@ type ResponseFormatMetadata<T> = {
   responseConstructor: ClassConstructor<T>;
 };
 
-const FORMAT_RESPONSE_METADATA_KEY = 'responseFormat';
+const FORMAT_RESPONSE_METADATA_KEY = 'meta:responseFormat';
 
 export const FormatResponse = <T>(
   responseConstructor: ClassConstructor<T>,

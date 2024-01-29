@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 
 import { excludeDeleted, exposeDeleted } from '~/app/utils';
 import { Genders, IUser, Roles } from '../interfaces';
+export const USER_RESPONSE_FIELD_NAME = 'user';
+export const USERS_RESPONSE_FIELD_NAME = 'users';
 
 @Exclude()
 export class UserResponse implements Partial<IUser> {

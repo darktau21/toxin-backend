@@ -13,9 +13,7 @@ import { ObjectId } from 'mongodb';
 import { FormatResponse } from '~/app/decorators';
 import { Public } from '~/auth/decorators';
 import { SortUsersQueryDto } from './dto';
-
-const USER_RESPONSE_FIELD_NAME = 'user';
-const USERS_RESPONSE_FIELD_NAME = 'users';
+const USER_CONTROLLER_NAME = 'users';
 
 @Controller('user')
 @ApiTags('Публичное api пользователей')

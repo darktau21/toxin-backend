@@ -10,6 +10,8 @@ import { PublicUserController } from './public-user.controller';
 import { USER_SCHEMA_NAME, UserSchemaFactory } from './schemas';
 import { UserService } from './user.service';
 
+const USERS_COLLECTION_NAME = 'users';
+
 @Module({
   controllers: [PublicUserController],
   exports: [UserService],
@@ -18,7 +20,7 @@ import { UserService } from './user.service';
     MailModule,
     MongooseModule.forFeatureAsync([
       {
-        collection: 'users',
+        collection: USERS_COLLECTION_NAME,
         inject: [AppConfigService],
         name: USER_SCHEMA_NAME,
         useFactory: (configService: AppConfigService) => {
