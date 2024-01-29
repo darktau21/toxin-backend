@@ -1,7 +1,7 @@
-import { FilterObjectDate, FilterObjectNumber } from '~/app/constraints';
+import { DateFilterQuery, NumberFilterQuery } from '../dto';
 
 export function createFilterQuery(
-  query?: FilterObjectDate | FilterObjectNumber | number | string,
+  query?: DateFilterQuery | NumberFilterQuery | number | string,
 ) {
   if (!query) return;
 

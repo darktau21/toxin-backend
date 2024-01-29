@@ -4,8 +4,8 @@ import { hash } from 'bcrypt';
 import { add } from 'date-fns';
 import { ClientSession, Model } from 'mongoose';
 
+import { PaginatedData } from '~/app/responses';
 import {
-  PaginatedResponse,
   applyFilters,
   clearObject,
   createFilterQuery,
@@ -64,7 +64,7 @@ export class UserService implements OnModuleInit {
       ...data
     }: SortUsersQueryDto,
     session?: ClientSession,
-  ): Promise<PaginatedResponse<IUser>> {
+  ): Promise<PaginatedData<IUser>> {
     const queryData = clearObject({
       ...data,
       birthday: createFilterQuery(birthday),
@@ -78,7 +78,7 @@ export class UserService implements OnModuleInit {
     });
 
     applyFilters(usersQuery, { select });
-    const pagesData = paginate<UserSortFields>(usersQuery, {
+    const paginationInfo = paginate<UserSortFields>(usersQuery, {
       documentsCount: usersCount,
       limit,
       page,
@@ -86,7 +86,8 @@ export class UserService implements OnModuleInit {
     });
 
     const users = await usersQuery.lean().exec();
-    return [users, pagesData];
+
+    return [users, paginationInfo];
   }
 
   async findOne(

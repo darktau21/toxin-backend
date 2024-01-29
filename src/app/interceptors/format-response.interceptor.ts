@@ -7,11 +7,10 @@ import {
 import { Reflector } from '@nestjs/core';
 import { map } from 'rxjs';
 
-import { type PaginatedResponse } from '~/app/utils';
-
 import { getResponseFormatMetadata } from '../decorators';
+import { PaginatedData } from '../responses';
 
-type IncomingData<T> = PaginatedResponse<T> | T | null;
+type IncomingData<T> = PaginatedData<T> | T | null;
 
 @Injectable()
 export class FormatResponseInterceptor<T> implements NestInterceptor {
@@ -21,7 +20,7 @@ export class FormatResponseInterceptor<T> implements NestInterceptor {
     const metadata = getResponseFormatMetadata(context, this.reflector);
 
     return next.handle().pipe(
-      map<IncomingData<T>, any>((data) => {
+      map<IncomingData<T>, unknown>((data) => {
         if (!metadata) {
           return data;
         }
