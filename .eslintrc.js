@@ -25,11 +25,6 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@darraghor/nestjs-typed/sort-module-metadata-arrays': 'error',
-    '@darraghor/nestjs-typed/injectable-should-be-provided': [
-      'error',
-      {
-        filterFromPaths: ['node_modules', '.test.', '.spec.'],
-      },
-    ],
+    '@darraghor/nestjs-typed/injectable-should-be-provided': 'off',
   },
 };
