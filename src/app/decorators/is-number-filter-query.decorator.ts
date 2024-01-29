@@ -2,7 +2,7 @@ import { type ValidationOptions, registerDecorator } from 'class-validator';
 
 import { IsNumberFilterQueryConstraint } from '../constraints';
 
-export function IsNumberFilterObject<T extends object>(
+export function IsNumberFilterQuery<T extends object>(
   validationOptions?: ValidationOptions,
 ) {
   return function (object: T, propertyName: string) {

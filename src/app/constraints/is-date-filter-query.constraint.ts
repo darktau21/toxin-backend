@@ -1,7 +1,5 @@
 import { plainToInstance } from 'class-transformer';
 import {
-  IsDateString,
-  IsOptional,
   ValidationArguments,
   ValidatorConstraint,
   type ValidatorConstraintInterface,
@@ -9,20 +7,7 @@ import {
   validate,
 } from 'class-validator';
 
-export class FilterObjectDate {
-  @IsOptional()
-  @IsDateString()
-  gt?: string;
-  @IsOptional()
-  @IsDateString()
-  gte?: string;
-  @IsOptional()
-  @IsDateString()
-  lt?: string;
-  @IsOptional()
-  @IsDateString()
-  lte?: string;
-}
+import { DateFilterQuery } from '../dto';
 
 @ValidatorConstraint({ async: true, name: 'isDateFilterObject' })
 export class IsDateFilterQueryConstraint
@@ -32,11 +17,11 @@ export class IsDateFilterQueryConstraint
     return `${validationArguments.property} should be a valid ISO Date string or object`;
   }
 
-  async validate(value: FilterObjectDate | string): Promise<boolean> {
+  async validate(value: DateFilterQuery | string): Promise<boolean> {
     if (typeof value === 'string') {
       return isDateString(value);
     }
-    const errors = await validate(plainToInstance(FilterObjectDate, value), {
+    const errors = await validate(plainToInstance(DateFilterQuery, value), {
       forbidNonWhitelisted: true,
       whitelist: true,
     });
