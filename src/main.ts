@@ -12,10 +12,8 @@ import { resolve } from 'path';
 import * as process from 'process';
 
 import { AppModule } from '~/app/app.module';
-import { HttpExceptionFilter } from '~/app/filters';
-
-import { AppConfigService } from './config/app-config.service';
 import { generateMermaidGraph } from '~/app/utils';
+import { AppConfigService } from '~/config/app-config.service';
 
 declare const module: any;
 
@@ -37,8 +35,6 @@ async function bootstrap() {
   }
 
   app.useStaticAssets({ root: resolve(__dirname, '..', 'public') });
-
-  app.useGlobalFilters(new HttpExceptionFilter());
 
   const { cookieSecret } = configService.getSecurity();
 
