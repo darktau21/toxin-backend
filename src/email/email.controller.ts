@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  GoneException,
   HttpCode,
   HttpStatus,
   Param,
@@ -12,6 +11,7 @@ import {
 import { ClientSession } from 'mongoose';
 
 import { Transaction } from '~/app/decorators';
+import { HttpException } from '~/app/exceptions';
 import { WithTransactionInterceptor } from '~/app/interceptors';
 import { CurrentUser } from '~/auth/decorators';
 import { IAccessTokenData } from '~/auth/interfaces';
@@ -38,7 +38,10 @@ export class EmailController {
     );
 
     if (!emailConfirmationData) {
-      throw new GoneException('wrong code or email confirmation expires');
+      throw new HttpException(
+        { code: ['wrong code or email confirmation expires'] },
+        HttpStatus.GONE,
+      );
     }
 
     return null;

@@ -1,8 +1,8 @@
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import {
-  BadRequestException,
   Controller,
   Get,
+  HttpStatus,
   Param,
   Query,
   UseInterceptors,
@@ -11,6 +11,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { ObjectId } from 'mongodb';
 
 import { FormatResponse } from '~/app/decorators';
+import { HttpException } from '~/app/exceptions';
 import {
   ApiExceptionResponse,
   ApiOkPaginatedResponse,
@@ -52,7 +53,10 @@ export class PublicUserController {
   @ApiExceptionResponse(HttpStatus.BAD_REQUEST)
   async getUser(@Param('id') id: string) {
     if (!ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid id string');
+      throw new HttpException(
+        { id: ['id should be valid uuid string'] },
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     return this.userService.findById(id);

@@ -1,8 +1,7 @@
-import {
-  BadRequestException,
-  ValidationError,
-  ValidationPipe,
-} from '@nestjs/common';
+import { HttpStatus, ValidationPipe } from '@nestjs/common';
+import { ValidationError } from 'class-validator';
+
+import { HttpException } from '../exceptions';
 
 export class AppValidationPipe extends ValidationPipe {
   exceptionFactory = (validationErrors: ValidationError[]) => {
@@ -14,7 +13,7 @@ export class AppValidationPipe extends ValidationPipe {
       );
     });
 
-    throw new BadRequestException(errors);
+    throw new HttpException(errors, HttpStatus.BAD_REQUEST);
   };
 
   constructor() {

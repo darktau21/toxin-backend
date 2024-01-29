@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy, StrategyOptions } from 'passport-jwt';
 
@@ -23,7 +23,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
   async validate(payload: IAccessTokenData) {
     if (!(await this.authService.validateUser(payload))) {
-      throw new UnauthorizedException();
+      throw new HttpException(
+        'invalid refresh session',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     return payload;

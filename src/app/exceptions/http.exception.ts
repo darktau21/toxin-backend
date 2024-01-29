@@ -6,10 +6,14 @@ import {
 
 export class HttpException extends _HttpException {
   constructor(
-    errors: Record<string, string[]>,
+    errors: Record<string, string[]> | string,
     httpStatus: HttpStatus,
     options?: HttpExceptionOptions,
   ) {
-    super(errors, httpStatus, options);
+    if (typeof errors === 'string') {
+      super({ message: errors }, httpStatus, options);
+    } else {
+      super(errors, httpStatus, options);
+    }
   }
 }

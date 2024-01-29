@@ -8,12 +8,13 @@ import {
   Res,
   UseInterceptors,
 } from '@nestjs/common';
-import { UnauthorizedException, UseGuards } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { FastifyReply } from 'fastify';
 import { ClientSession } from 'mongoose';
 
 import { FormatResponse, Transaction } from '~/app/decorators';
+import { HttpException } from '~/app/exceptions';
 import { WithTransactionInterceptor } from '~/app/interceptors';
 import { AppConfigService } from '~/config/app-config.service';
 import { EmailService } from '~/email/email.service';
@@ -62,7 +63,10 @@ export class AuthController {
   ) {
     const tokens = await this.authService.login(loginDto, fingerprint);
     if (!tokens) {
-      throw new UnauthorizedException('wrong email or password');
+      throw new HttpException(
+        'wrong email or password',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     this.setCookieToken(tokens, res);
@@ -101,7 +105,10 @@ export class AuthController {
   ) {
     const tokens = await this.authService.refresh(refreshToken, fp, session);
     if (!tokens) {
-      throw new UnauthorizedException('invalid refresh session');
+      throw new HttpException(
+        'refresh session expired',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     this.setCookieToken(tokens, res);
