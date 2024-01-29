@@ -12,7 +12,7 @@ export class ResponseWrapperInterceptor<T = unknown>
   implements NestInterceptor<T, ResponseWrapper<T>>
 {
   intercept(
-    context: ExecutionContext,
+    _: ExecutionContext,
     next: CallHandler,
   ): Observable<ResponseWrapper<T>> {
     return next
