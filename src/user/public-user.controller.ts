@@ -1,22 +1,9 @@
 import { CacheInterceptor } from '@nestjs/cache-manager';
-import {
-  Controller,
-  Get,
-  HttpStatus,
-  Param,
-  Query,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { ObjectId } from 'mongodb';
 
 import { FormatResponse } from '~/app/decorators';
-import { HttpException } from '~/app/exceptions';
-import {
-  ApiExceptionResponse,
-  ApiOkPaginatedResponse,
-  ApiOkResponse,
-} from '~/app/swagger';
+import { ApiOkPaginatedResponse, ApiOkResponse } from '~/app/swagger';
 import { Public } from '~/auth/decorators';
 
 import { SortUsersQueryDto } from './dto';
@@ -41,7 +28,7 @@ export class PublicUserController {
   @ApiOkPaginatedResponse(UserResponse, USERS_RESPONSE_FIELD_NAME, {
     description: 'Получить список пользователей',
   })
-  async getAllUsers(@Query() query: SortUsersQueryDto) {
+  async getAll(@Query() query: SortUsersQueryDto) {
     return this.userService.findMany(query);
   }
 
@@ -50,15 +37,7 @@ export class PublicUserController {
   @ApiOkResponse(UserResponse, USER_RESPONSE_FIELD_NAME, {
     description: 'Получить пользователя по его id',
   })
-  @ApiExceptionResponse(HttpStatus.BAD_REQUEST)
-  async getUser(@Param('id') id: string) {
-    if (!ObjectId.isValid(id)) {
-      throw new HttpException(
-        { id: ['id should be valid uuid string'] },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
+  async getById(@Param('id') id: string) {
     return this.userService.findById(id);
   }
 }

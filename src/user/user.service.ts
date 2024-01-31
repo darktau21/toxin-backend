@@ -2,18 +2,16 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { hash } from 'bcrypt';
 import { add } from 'date-fns';
-import { ClientSession, Model } from 'mongoose';
+import { ClientSession, Model, isValidObjectId } from 'mongoose';
 
 import { PaginatedData } from '~/app/responses';
-import {
-  applyFilters,
-  clearObject,
-  createFilterQuery,
-  paginate,
-} from '~/app/utils';
+import { clearObject, createFilterQuery, paginate } from '~/app/utils';
 import { AppConfigService } from '~/config/app-config.service';
 
-import { SortUsersQueryDto, UserSortFields } from './dto';
+import {
+  SortUsersQueryDto as PaginatedUsersQueryDto,
+  UserSortFields,
+} from './dto';
 import { Genders, IUser, Roles } from './interfaces';
 import { USER_SCHEMA_NAME } from './schemas';
 
@@ -50,6 +48,10 @@ export class UserService implements OnModuleInit {
   }
 
   async findById(id: string, session?: ClientSession): Promise<IUser | null> {
+    if (!isValidObjectId(id)) {
+      return null;
+    }
+
     return this.userModel.findById(id, {}, { session }).lean().exec();
   }
 
@@ -62,7 +64,7 @@ export class UserService implements OnModuleInit {
       select,
       sort,
       ...data
-    }: SortUsersQueryDto,
+    }: PaginatedUsersQueryDto,
     session?: ClientSession,
   ): Promise<PaginatedData<IUser>> {
     const queryData = clearObject({
@@ -77,7 +79,9 @@ export class UserService implements OnModuleInit {
       session,
     });
 
-    applyFilters(usersQuery, { select });
+    if (select) {
+      usersQuery.select(select);
+    }
     const paginationInfo = paginate<UserSortFields>(usersQuery, {
       documentsCount: usersCount,
       limit,
@@ -106,8 +110,13 @@ export class UserService implements OnModuleInit {
       .exec();
   }
 
-  hardDelete(id: string, session?: ClientSession) {
-    return this.userModel.deleteOne({ _id: id }, { session });
+  async hardDelete(id: string, session?: ClientSession) {
+    const { deletedCount } = await this.userModel
+      .deleteOne({ _id: id }, { session })
+      .lean()
+      .exec();
+
+    return Boolean(deletedCount);
   }
 
   async onModuleInit() {
@@ -131,8 +140,15 @@ export class UserService implements OnModuleInit {
     this.logger.log('Admin user created');
   }
 
-  async restore(id: string) {
-    return this.update(id, { isDeleted: false });
+  async restore(id: string, session?: ClientSession) {
+    return this.userModel
+      .findByIdAndUpdate(
+        id,
+        { $unset: { deletedAt: 1, deletionDate: 1 }, isDeleted: false },
+        { new: true, session },
+      )
+      .lean()
+      .exec();
   }
 
   softDelete(id: string, session?: ClientSession): Promise<IUser> {

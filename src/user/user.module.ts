@@ -17,7 +17,6 @@ const USERS_COLLECTION_NAME = 'users';
   exports: [UserService],
   imports: [
     CacheModule.register(),
-    MailModule,
     MongooseModule.forFeatureAsync([
       {
         collection: USERS_COLLECTION_NAME,

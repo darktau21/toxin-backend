@@ -1,9 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
 import { Genders, IUser, Roles } from '../interfaces';
 
 export const USER_SCHEMA_NAME = 'schema:user';
+
+export type UserDocument = HydratedDocument<IUser>;
 
 export const UserSchemaFactory = (userDeleteTtl: number) => {
   @Schema({ timestamps: true, versionKey: false })
