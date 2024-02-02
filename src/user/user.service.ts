@@ -2,7 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { hash } from 'bcrypt';
 import { add } from 'date-fns';
-import { ClientSession, Model, isValidObjectId } from 'mongoose';
+import { ClientSession, FilterQuery, Model, isValidObjectId } from 'mongoose';
 
 import { PaginatedData } from '~/app/responses';
 import { clearObject, createFilterQuery, paginate } from '~/app/utils';
@@ -95,7 +95,7 @@ export class UserService implements OnModuleInit {
   }
 
   async findOne(
-    userQuery: Partial<IUser>,
+    userQuery: FilterQuery<IUser>,
     session?: ClientSession,
   ): Promise<IUser | null> {
     return this.userModel
