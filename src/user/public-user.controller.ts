@@ -14,9 +14,9 @@ import {
 } from './responses';
 import { UserService } from './user.service';
 
-const USER_CONTROLLER_NAME = 'users';
+const USER_CONTROLLER_ROUTE = 'users';
 
-@Controller(USER_CONTROLLER_NAME)
+@Controller(USER_CONTROLLER_ROUTE)
 @UseInterceptors(CacheInterceptor)
 @Public()
 @ApiTags('Публичное api пользователей')
