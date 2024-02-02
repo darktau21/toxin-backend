@@ -20,12 +20,11 @@ export class IsUniqueUserFieldConstraint
 
   async validate(
     value: unknown,
-    validationArguments?: ValidationArguments,
+    { constraints, property }: ValidationArguments,
   ): Promise<boolean> {
     const user = await this.userService.findOne({
-      [validationArguments.property]: value,
+      [constraints?.length ? constraints[0] : property]: value,
     });
-
     return !user;
   }
 }
