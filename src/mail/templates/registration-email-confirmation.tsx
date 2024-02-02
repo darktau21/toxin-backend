@@ -16,19 +16,19 @@ export const RegistrationEmailConfirmation = ({
   return (
     <Layout title="Регистрация аккаунта">
       <Section>
-        <Row>
+        <Row key="1">
           <Column>
             <Heading>Добро пожаловать!</Heading>
           </Column>
         </Row>
-        <Row>
+        <Row key="2">
           <Column>
             <P>
               {name} {lastName}, Ваш аккаунт был успешно зарегистрирован.
             </P>
           </Column>
         </Row>
-        <Row>
+        <Row key="3">
           <Column>
             <P>
               Для использования всех функций сервиса подтвердите почту, нажав на

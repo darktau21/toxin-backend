@@ -2,7 +2,7 @@ import { Column, Heading, Row, Section } from '@react-email/components';
 
 import { ConfirmEmailLink, Layout, P } from './layout';
 
-type ChangeEmailConfirmationProps = {
+export type ChangeEmailConfirmationProps = {
   code: string;
   lastName: string;
   name: string;
@@ -20,12 +20,12 @@ export const ChangeEmailConfirmation = ({
   return (
     <Layout title="Смена почтового адреса">
       <Section>
-        <Row>
+        <Row key="1">
           <Column>
             <Heading>Ваш email изменен</Heading>
           </Column>
         </Row>
-        <Row>
+        <Row key="2">
           <Column>
             <P>
               {name} {lastName}, email адрес Вашего аккаунта Toxin был изменен с{' '}
@@ -33,7 +33,7 @@ export const ChangeEmailConfirmation = ({
             </P>
           </Column>
         </Row>
-        <Row>
+        <Row key="3">
           <Column>
             <P>Чтобы подтвердить изменение нажмите на кнопку ниже:</P>
           </Column>

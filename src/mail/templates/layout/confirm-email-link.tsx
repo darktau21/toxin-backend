@@ -13,12 +13,12 @@ export const ConfirmEmailLink = ({ code }: ConfirmEmailLinkProps) => {
 
   return (
     <>
-      <Row>
+      <Row key="1">
         <Column className="text-center">
           <Button href={confirmationLink}>Подтвердить</Button>
         </Column>
       </Row>
-      <Row>
+      <Row key="2">
         <Column>
           <P>
             Или перейдите по ссылке:{' '}
