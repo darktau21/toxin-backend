@@ -132,7 +132,7 @@ describe('UserService', () => {
     it('sort method should be called', async () => {
       await userService.findMany({ name: mockUser.name, sort: 'birthday' });
 
-      expect(userQuery.select).toHaveBeenCalledWith('birthday');
+      expect(userQuery.sort).toHaveBeenCalledWith('birthday');
     });
   });
 
