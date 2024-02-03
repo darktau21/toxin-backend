@@ -5,6 +5,7 @@ import { AppConfigService } from '~/config/app-config.service';
 import { MailModule } from '~/mail/mail.module';
 import { UserModule } from '~/user/user.module';
 
+import { IsUniqueEmailDataConstraint } from './constraints';
 import { EmailController } from './email.controller';
 import { EmailService } from './email.service';
 import {
@@ -39,6 +40,6 @@ import {
     ]),
     UserModule,
   ],
-  providers: [EmailService],
+  providers: [EmailService, IsUniqueEmailDataConstraint],
 })
 export class EmailModule {}

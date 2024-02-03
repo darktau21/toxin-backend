@@ -2,62 +2,126 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
   HttpStatus,
   Param,
   Post,
   UseInterceptors,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { ClientSession } from 'mongoose';
 
-import { Transaction } from '~/app/decorators';
+import { FormatResponse, Transaction } from '~/app/decorators';
 import { HttpException } from '~/app/exceptions';
 import { WithTransactionInterceptor } from '~/app/interceptors';
+import { ApiExceptionResponse, ApiOkResponse } from '~/app/swagger';
 import { CurrentUser } from '~/auth/decorators';
-import { IAccessTokenData } from '~/auth/interfaces';
+import { MailService } from '~/mail/mail.service';
+import { IUser } from '~/user/interfaces';
 
-import { EmailDto } from './dto';
+import { UpdateEmailDto } from './dto';
 import { EmailService } from './email.service';
+import { EmailDataResponse } from './responses';
 
-@Controller('email')
+const EMAIL_CONTROLLER_ROUTE = 'email';
+
+@Controller(EMAIL_CONTROLLER_ROUTE)
+@FormatResponse(EmailDataResponse)
+@UseInterceptors(WithTransactionInterceptor)
+@ApiTags('Работа с email')
 export class EmailController {
-  constructor(private readonly emailService: EmailService) {}
+  constructor(
+    private readonly emailService: EmailService,
+    private readonly mailService: MailService,
+  ) {}
 
   @Get('confirm/:code')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @UseInterceptors(WithTransactionInterceptor)
+  @ApiOkResponse(EmailDataResponse, null, {
+    description: 'Подтверждение email',
+  })
+  @ApiExceptionResponse(HttpStatus.NOT_FOUND)
   async confirm(
-    @CurrentUser() user: IAccessTokenData,
+    @CurrentUser() user: IUser,
     @Param('code') code: string,
     @Transaction() session: ClientSession,
-  ): Promise<null> {
+  ) {
     const emailConfirmationData = await this.emailService.confirm(
       code,
-      user.id,
+      user._id.toString(),
       session,
     );
 
     if (!emailConfirmationData) {
       throw new HttpException(
-        { code: ['wrong code or email confirmation expires'] },
-        HttpStatus.GONE,
+        'wrong code or email confirmation expires',
+        HttpStatus.NOT_FOUND,
       );
     }
 
-    return null;
+    return { newEmail: emailConfirmationData.newEmail };
+  }
+
+  @Get('restore/:code')
+  @ApiOkResponse(EmailDataResponse, null, {
+    description: 'Восстановление предыдущего email',
+  })
+  @ApiExceptionResponse(HttpStatus.NOT_FOUND)
+  async restore(
+    @CurrentUser() user: IUser,
+    @Param('code') code: string,
+    @Transaction() session: ClientSession,
+  ) {
+    const emailRestoringData = await this.emailService.restore(
+      code,
+      user._id.toString(),
+      session,
+    );
+
+    if (!emailRestoringData) {
+      throw new HttpException('wrong code', HttpStatus.NOT_FOUND);
+    }
+
+    return { newEmail: emailRestoringData.email };
   }
 
   @Post()
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @UseInterceptors(WithTransactionInterceptor)
+  @ApiOkResponse(EmailDataResponse, null, {
+    description: 'Запрос на обновление email',
+  })
+  @ApiExceptionResponse(HttpStatus.BAD_REQUEST)
   async update(
-    @CurrentUser() user: IAccessTokenData,
-    @Body() emailData: EmailDto,
+    @CurrentUser() { _id, email, lastName, name }: IUser,
+    @Body() emailData: UpdateEmailDto,
     @Transaction() session: ClientSession,
-  ): Promise<null> {
-    await this.emailService.update(emailData.email, user.id, session);
-    await this.emailService.saveOld(user.email, user.id, session);
+  ) {
+    const {
+      code: confirmationCode,
+      expiresIn,
+      newEmail,
+    } = await this.emailService.update(
+      emailData.newEmail,
+      _id.toString(),
+      true,
+      session,
+    );
+    const { code: resetCode, email: oldEmail } =
+      await this.emailService.saveOld(email, _id.toString(), session);
 
-    return null;
+    this.mailService.sendChangeEmailConfirmation(newEmail, {
+      code: confirmationCode,
+      lastName,
+      name,
+      newEmail,
+      oldEmail,
+    });
+
+    this.mailService.sendChangeEmailNotification(oldEmail, {
+      code: resetCode,
+      lastName,
+      name,
+      newEmail,
+      oldEmail,
+    });
+
+    return { expiresIn, newEmail, oldEmail };
   }
 }

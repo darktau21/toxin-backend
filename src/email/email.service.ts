@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { add } from 'date-fns';
 import { ClientSession, Model } from 'mongoose';
 
-import { asyncRandomBytes } from '~/app/utils';
+import { asyncRandomBytes, clearObject } from '~/app/utils';
 import { AppConfigService } from '~/config/app-config.service';
 import { UserService } from '~/user/user.service';
 
@@ -41,7 +41,7 @@ export class EmailService {
       return null;
     }
 
-    this.userService.update(
+    await this.userService.update(
       userId,
       {
         email: emailConfirmationData.newEmail,
@@ -53,15 +53,46 @@ export class EmailService {
     return emailConfirmationData;
   }
 
-  async restore(code: string, session?: ClientSession) {
+  async isNewEmailDataExists(prop: string, value: unknown) {
+    const isEmailExists = Boolean(
+      await this.emailConfirmationDataModel
+        .exists({
+          [prop]: value,
+        })
+        .lean()
+        .exec(),
+    );
+
+    return isEmailExists;
+  }
+
+  async isOldEmailDataExists(prop: string, value: unknown) {
+    const isExists = Boolean(
+      await this.oldEmailDataModel.exists({ [prop]: value }),
+    );
+    return isExists;
+  }
+
+  async restore(code: string, userId: string, session?: ClientSession) {
     const emailData = await this.oldEmailDataModel
-      .findOneAndDelete({ code }, { session })
+      .findOneAndDelete({ code, userId }, { session })
       .lean()
       .exec();
 
     if (!emailData) {
       return null;
     }
+
+    const user = await this.userService.findOne(
+      { _id: { $ne: userId }, email: emailData.email },
+      session,
+    );
+
+    if (user) {
+      return null;
+    }
+
+    await this.emailConfirmationDataModel.deleteMany({ userId }, { session });
 
     return this.userService.update(
       emailData.userId,
@@ -78,6 +109,7 @@ export class EmailService {
       .findOne({ email: oldEmail }, {}, { session })
       .lean()
       .exec();
+
     if (emailData?.userId === userId) {
       return emailData;
     }
@@ -99,7 +131,12 @@ export class EmailService {
     return oldEmailData[0];
   }
 
-  async update(to: string, userId: string, session?: ClientSession) {
+  async update(
+    to: string,
+    userId: string,
+    expires: boolean = true,
+    session?: ClientSession,
+  ) {
     const emailData = await this.emailConfirmationDataModel
       .findOne(
         {
@@ -115,6 +152,8 @@ export class EmailService {
       return emailData;
     }
 
+    await this.emailConfirmationDataModel.deleteMany({ userId }, { session });
+
     const confirmationCode = await this.generateConfirmationCode();
 
     this.userService.update(userId, { isVerified: false }, session);
@@ -124,11 +163,14 @@ export class EmailService {
     return this.emailConfirmationDataModel
       .findOneAndUpdate(
         { newEmail: to },
-        {
+        clearObject({
           code: confirmationCode,
-          expiresIn: add(Date.now(), { seconds: emailConfirmationTime }),
+          expiresIn: expires
+            ? add(Date.now(), { seconds: emailConfirmationTime })
+            : null,
+          requestedAt: expires ? new Date() : null,
           userId,
-        },
+        }),
         { new: true, session, upsert: true },
       )
       .lean()

@@ -13,14 +13,16 @@ export const EmailConfirmationDataSchemaFactory = (
     @Prop()
     code: string;
 
-    @Prop({ expires: emailConfirmationTtl, type: Date })
     createdAt: Date;
 
     @Prop({ type: Date })
-    expiresIn: Date;
+    expiresIn?: Date;
 
     @Prop({ unique: true })
     newEmail: string;
+
+    @Prop({ expires: emailConfirmationTtl, type: Date })
+    requestedAt?: Date;
 
     @Prop()
     userId: string;
