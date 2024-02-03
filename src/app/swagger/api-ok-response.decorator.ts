@@ -8,7 +8,7 @@ import {
 
 export const ApiOkResponse = <TModel extends Type<any>>(
   model: TModel,
-  fieldName: string,
+  fieldName?: string,
   options?: ApiResponseOptions,
 ) => {
   return applyDecorators(
@@ -17,12 +17,14 @@ export const ApiOkResponse = <TModel extends Type<any>>(
       ...options,
       schema: {
         properties: {
-          data: {
-            description: 'Запрошенные данные',
-            properties: {
-              [fieldName]: { $ref: getSchemaPath(model) },
-            },
-          },
+          data: fieldName
+            ? {
+                description: 'Запрошенные данные',
+                properties: {
+                  [fieldName]: { $ref: getSchemaPath(model) },
+                },
+              }
+            : { $ref: getSchemaPath(model) },
           status: {
             description: 'Статус ответа',
             enum: ['success', 'fail', 'error'],

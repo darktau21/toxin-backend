@@ -12,16 +12,24 @@ export const ApiExceptionResponse = (
         properties: {
           data: {
             description: 'Ошибки',
-            properties: {
-              property: {
-                description:
-                  'Поле, которое вызвало ошибку и массив сообщений ошибок',
-                items: {
-                  type: 'string',
-                },
-                type: 'array',
-              },
-            },
+            properties:
+              httpStatus === HttpStatus.BAD_REQUEST
+                ? {
+                    property: {
+                      description:
+                        'Поле, которое вызвало ошибку/поле message и сообщение/сообщения ошибок',
+                      items: {
+                        type: 'string',
+                      },
+                      type: 'array',
+                    },
+                  }
+                : {
+                    message: {
+                      description: 'Сообщение об ошибке',
+                      type: 'string',
+                    },
+                  },
           },
           status: {
             description: 'Статус ответа',
