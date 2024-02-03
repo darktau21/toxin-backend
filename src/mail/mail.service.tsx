@@ -6,6 +6,10 @@ import { ReactElement } from 'react';
 
 import { MAIL_TRANSPORT } from './mail.providers';
 import {
+  ChangeEmailConfirmation,
+  ChangeEmailConfirmationProps,
+  ChangeEmailNotification,
+  ChangeEmailNotificationProps,
   RegistrationEmailConfirmation,
   RegistrationEmailConfirmationProps,
 } from './templates';
@@ -27,6 +31,20 @@ export class MailService {
       html,
       subject: options.subject,
       to: options.to,
+    });
+  }
+
+  sendChangeEmailConfirmation(to: string, props: ChangeEmailConfirmationProps) {
+    this.sendMail(<ChangeEmailConfirmation {...props} />, {
+      subject: 'Смена email',
+      to,
+    });
+  }
+
+  sendChangeEmailNotification(to: string, props: ChangeEmailNotificationProps) {
+    this.sendMail(<ChangeEmailNotification {...props} />, {
+      subject: 'Смена email',
+      to,
     });
   }
 
