@@ -71,12 +71,11 @@ export class TokenService {
   }
 
   async generateTokens(
-    user: Pick<IUser, '_id' | 'email' | 'role'>,
+    user: Pick<IUser, '_id' | 'role'>,
     fingerprint: Fingerprint,
     session?: ClientSession,
   ): Promise<ITokens> {
     const accessToken = await this.generateAccessToken({
-      email: user.email,
       id: user._id.toString(),
       role: user.role,
     });

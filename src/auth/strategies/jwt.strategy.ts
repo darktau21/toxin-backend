@@ -22,13 +22,14 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: IAccessTokenData) {
-    if (!(await this.authService.validateUser(payload))) {
+    const user = await this.authService.validateUser(payload);
+    if (!user) {
       throw new HttpException(
         'invalid refresh session',
         HttpStatus.UNAUTHORIZED,
       );
     }
 
-    return payload;
+    return user;
   }
 }

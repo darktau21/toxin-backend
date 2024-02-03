@@ -1,10 +1,10 @@
 import { ClientSession } from 'mongoose';
 
-import { IAccessTokenData } from '~/auth/interfaces';
+import { IUser } from '~/user/interfaces';
 
 declare module 'fastify' {
   interface FastifyRequest {
     transaction?: ClientSession;
-    user?: IAccessTokenData;
+    user?: IUser;
   }
 }
