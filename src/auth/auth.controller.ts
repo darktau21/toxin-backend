@@ -131,12 +131,25 @@ export class AuthController {
       registerDto,
       session,
     );
-    const { code } = await this.emailService.update(
+    const emailData = await this.emailService.update(
       email,
       _id.toString(),
+      false,
       session,
     );
-    this.mailService.sendRegistrationEmail(email, { code, lastName, name });
+
+    if (!emailData) {
+      throw new HttpException(
+        'user with this email already registered',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    this.mailService.sendRegistrationEmail(email, {
+      code: emailData.code,
+      lastName,
+      name,
+    });
     const tokens = await this.authService.login(
       registerDto,
       fingerprint,
