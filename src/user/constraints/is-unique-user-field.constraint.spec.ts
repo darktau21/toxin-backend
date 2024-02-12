@@ -9,7 +9,7 @@ import { USER_SCHEMA_NAME } from '../schemas';
 import { UserService } from '../user.service';
 import { IsUniqueUserFieldConstraint } from './is-unique-user-field.constraint';
 
-describe('IsUniquUserFieldConstraint', () => {
+describe('IsUniqueUserFieldConstraint', () => {
   let isUniqueUserFieldConstraint: IsUniqueUserFieldConstraint;
   let userService: UserService;
 
@@ -50,6 +50,7 @@ describe('IsUniquUserFieldConstraint', () => {
       jest.spyOn(userService, 'findOne').mockResolvedValue(null);
 
       const result = await isUniqueUserFieldConstraint.validate('test', {
+        constraints: [],
         property: 'test',
       } as ValidationArguments);
 
@@ -62,13 +63,14 @@ describe('IsUniquUserFieldConstraint', () => {
         .mockResolvedValue({ lastName: 'Test', name: 'Test' } as IUser);
 
       const result = await isUniqueUserFieldConstraint.validate('test', {
+        constraints: [],
         property: 'test',
       } as ValidationArguments);
 
       expect(result).toBe(false);
     });
 
-    it('should use provided property if *constraints* argument exists', async () => {
+    it('should use provided property if constraints argument exists', async () => {
       jest.spyOn(userService, 'findOne');
 
       await isUniqueUserFieldConstraint.validate('test', {

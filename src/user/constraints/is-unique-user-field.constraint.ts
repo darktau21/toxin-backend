@@ -23,8 +23,9 @@ export class IsUniqueUserFieldConstraint
     { constraints, property }: ValidationArguments,
   ): Promise<boolean> {
     const user = await this.userService.findOne({
-      [constraints?.length ? constraints[0] : property]: value,
+      [constraints[0] ?? property]: value,
     });
+
     return !user;
   }
 }

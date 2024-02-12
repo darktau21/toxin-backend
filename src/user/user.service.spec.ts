@@ -8,21 +8,14 @@ import { AppConfigService } from '~/config/app-config.service';
 import { SecurityConfigSchema } from '~/config/schemas';
 
 import { Genders, IUser, Roles } from './interfaces';
-import { USER_SCHEMA_NAME, UserDocument } from './schemas';
+import { USER_SCHEMA_NAME } from './schemas';
 import { UserService } from './user.service';
 
 describe('UserService', () => {
   let userService: UserService;
   let configService: AppConfigService;
   let userModel: DeepMocked<Model<IUser>>;
-  const userQuery = {
-    exec: jest.fn(),
-    lean: jest.fn().mockReturnThis(),
-    limit: jest.fn().mockReturnThis(),
-    select: jest.fn().mockReturnThis(),
-    skip: jest.fn().mockReturnThis(),
-    sort: jest.fn().mockReturnThis(),
-  };
+  let userQuery: Query<any, any>;
 
   const mockUser: IUser = {
     _id: new Types.ObjectId('6578b7e174334f130d4401f9'),
@@ -56,19 +49,27 @@ describe('UserService', () => {
     userService = module.get(UserService);
     configService = module.get(AppConfigService);
     userModel = module.get(getModelToken(USER_SCHEMA_NAME));
+
+    userQuery = {
+      exec: jest.fn(),
+      lean: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      sort: jest.fn().mockReturnThis(),
+    } as unknown as Query<any, any>;
+
+    jest.spyOn(userModel, 'find').mockReturnValue(userQuery);
+    jest.spyOn(userModel, 'findById').mockReturnValue(userQuery);
+    jest.spyOn(userModel, 'findOne').mockReturnValue(userQuery);
+    jest.spyOn(userModel, 'findByIdAndUpdate').mockReturnValueOnce(userQuery);
   });
 
-  it('userService should be defined', () => {
+  it('should be defined', () => {
     expect(userService).toBeDefined();
   });
 
   describe('findById', () => {
-    beforeEach(() => {
-      jest
-        .spyOn(userModel, 'findById')
-        .mockReturnValue(userQuery as unknown as Query<any, any>);
-    });
-
     it('should return user', async () => {
       jest.spyOn(userQuery, 'exec').mockResolvedValue(mockUser);
 
@@ -85,12 +86,6 @@ describe('UserService', () => {
   });
 
   describe('findOne', () => {
-    beforeEach(() => {
-      jest
-        .spyOn(userModel, 'findOne')
-        .mockReturnValue(userQuery as unknown as Query<any, any>);
-    });
-
     it('should return user', async () => {
       jest.spyOn(userQuery, 'exec').mockResolvedValue(mockUser);
 
@@ -102,11 +97,8 @@ describe('UserService', () => {
 
   describe('findMany', () => {
     beforeEach(() => {
-      jest
-        .spyOn(userModel, 'find')
-        .mockReturnValue(userQuery as unknown as Query<any, any>);
-      jest.spyOn(userModel, 'countDocuments').mockResolvedValue(1);
       jest.spyOn(userQuery, 'exec').mockResolvedValue(mockUser);
+      jest.spyOn(userModel, 'countDocuments').mockResolvedValue(1);
     });
 
     it('should return array with users array and pagination info', async () => {
@@ -140,7 +132,7 @@ describe('UserService', () => {
     beforeEach(() => {
       jest.spyOn(userModel, 'create').mockResolvedValue(
         // @ts-expect-error returns wrong type
-        [mockUser] as unknown as Promise<UserDocument>,
+        [mockUser],
       );
       jest
         .spyOn(configService, 'getSecurity')
@@ -157,7 +149,6 @@ describe('UserService', () => {
   describe('hardDelete', () => {
     it('should return true if user deleted', async () => {
       jest.spyOn(userQuery, 'exec').mockResolvedValue({ deletedCount: 1 });
-
       const result = await userService.hardDelete(mockUser._id.toString());
 
       expect(result).toStrictEqual(true);
@@ -176,10 +167,11 @@ describe('UserService', () => {
       jest
         .spyOn(configService, 'getSecurity')
         .mockReturnValue({ deletedUserTtl: 1 } as SecurityConfigSchema);
-      jest.spyOn(userService, 'update').mockResolvedValue(deletedUser);
     });
 
     it('should return deleted user', async () => {
+      jest.spyOn(userService, 'update').mockResolvedValue(deletedUser);
+
       const result = await userService.softDelete(mockUser._id.toString());
 
       expect(result).toEqual(deletedUser);
@@ -188,9 +180,6 @@ describe('UserService', () => {
 
   describe('update', () => {
     it('should return updated user', async () => {
-      jest
-        .spyOn(userModel, 'findByIdAndUpdate')
-        .mockReturnValue(userQuery as unknown as Query<any, any>);
       jest
         .spyOn(userQuery, 'exec')
         .mockResolvedValue({ ...mockUser, isSubscriber: true });
@@ -204,17 +193,32 @@ describe('UserService', () => {
   });
 
   describe('restore', () => {
-    beforeEach(() => {
-      jest
-        .spyOn(userModel, 'findByIdAndUpdate')
-        .mockReturnValue(userQuery as unknown as Query<any, any>);
-      jest.spyOn(userQuery, 'exec').mockResolvedValue(mockUser);
-    });
-
     it('should return restored user', async () => {
+      jest.spyOn(userQuery, 'exec').mockResolvedValue(mockUser);
+
       const result = await userService.restore(mockUser._id.toString());
 
       expect(result).toEqual(mockUser);
+    });
+  });
+
+  describe('onModuleInit', () => {
+    it('should log message if admin user already exists', async () => {
+      jest.spyOn(userService, 'findOne').mockResolvedValue(mockUser);
+      jest.spyOn(userService, 'create');
+
+      await userService.onModuleInit();
+
+      expect(userService.create).not.toHaveBeenCalled();
+    });
+
+    it('should create admin user', async () => {
+      jest.spyOn(userService, 'findOne').mockResolvedValue(null);
+      jest.spyOn(userService, 'create');
+
+      await userService.onModuleInit();
+
+      expect(userService.create).toHaveBeenCalled();
     });
   });
 });

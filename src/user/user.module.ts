@@ -3,7 +3,6 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { AppConfigService } from '~/config/app-config.service';
-import { MailModule } from '~/mail/mail.module';
 
 import { IsUniqueUserFieldConstraint } from './constraints';
 import { PublicUserController } from './public-user.controller';
