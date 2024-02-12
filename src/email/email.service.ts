@@ -31,7 +31,11 @@ export class EmailService {
     return confirmationCode;
   }
 
-  async confirm(code: string, userId: string, session?: ClientSession) {
+  async confirm(
+    code: string,
+    userId: string,
+    session?: ClientSession,
+  ): Promise<IEmailConfirmationData> {
     const emailConfirmationData = await this.emailConfirmationDataModel
       .findOneAndDelete({ code, userId }, { session })
       .lean()
@@ -53,7 +57,7 @@ export class EmailService {
     return emailConfirmationData;
   }
 
-  async isNewEmailDataExists(prop: string, value: unknown) {
+  async isConfirmationDataExists(prop: string, value: unknown) {
     const isEmailExists = Boolean(
       await this.emailConfirmationDataModel
         .exists({
@@ -66,10 +70,14 @@ export class EmailService {
     return isEmailExists;
   }
 
-  async isOldEmailDataExists(prop: string, value: unknown) {
+  async isOldDataExists(prop: string, value: unknown) {
     const isExists = Boolean(
-      await this.oldEmailDataModel.exists({ [prop]: value }),
+      await this.oldEmailDataModel
+        .exists({ [prop]: value })
+        .lean()
+        .exec(),
     );
+
     return isExists;
   }
 
@@ -94,7 +102,7 @@ export class EmailService {
 
     await this.emailConfirmationDataModel.deleteMany({ userId }, { session });
 
-    return this.userService.update(
+    const { email } = await this.userService.update(
       emailData.userId,
       {
         email: emailData.email,
@@ -102,9 +110,15 @@ export class EmailService {
       },
       session,
     );
+
+    return { newEmail: email };
   }
 
-  async saveOld(oldEmail: string, userId: string, session?: ClientSession) {
+  async saveOld(
+    oldEmail: string,
+    userId: string,
+    session?: ClientSession,
+  ): Promise<OldEmailData> {
     const emailData = await this.oldEmailDataModel
       .findOne({ email: oldEmail }, {}, { session })
       .lean()
@@ -115,7 +129,9 @@ export class EmailService {
     }
 
     const restoreCode = await this.generateConfirmationCode();
-    await this.oldEmailDataModel.deleteOne({ email: oldEmail }, { session });
+    await this.oldEmailDataModel
+      .deleteOne({ email: oldEmail }, { session })
+      .exec();
 
     const oldEmailData = await this.oldEmailDataModel.create(
       [
@@ -136,7 +152,7 @@ export class EmailService {
     userId: string,
     expires: boolean = true,
     session?: ClientSession,
-  ) {
+  ): Promise<IEmailConfirmationData> {
     const emailData = await this.emailConfirmationDataModel
       .findOne(
         {
@@ -147,7 +163,6 @@ export class EmailService {
       )
       .lean()
       .exec();
-
     if (emailData?.userId === userId) {
       return emailData;
     }

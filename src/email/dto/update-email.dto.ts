@@ -3,12 +3,12 @@ import { IsEmail, IsString } from 'class-validator';
 
 import { IsUniqueUserField } from '~/user/decorators';
 
-import { IsUniqueNewEmailData } from '../decorators';
+import { IsUniqueEmailData } from '../decorators';
 
 export class UpdateEmailDto {
   @IsString()
   @IsEmail()
-  @IsUniqueNewEmailData({
+  @IsUniqueEmailData({
     message: 'change request for this email already sent',
   })
   @IsUniqueUserField('email', {

@@ -18,7 +18,7 @@ export const EmailConfirmationDataSchemaFactory = (
     @Prop({ type: Date })
     expiresIn?: Date;
 
-    @Prop({ unique: true })
+    @Prop()
     newEmail: string;
 
     @Prop({ expires: emailConfirmationTtl, type: Date })

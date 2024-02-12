@@ -57,7 +57,7 @@ export class EmailController {
       );
     }
 
-    return { newEmail: emailConfirmationData.newEmail };
+    return emailConfirmationData;
   }
 
   @Get('restore/:code')
@@ -80,7 +80,7 @@ export class EmailController {
       throw new HttpException('wrong code', HttpStatus.NOT_FOUND);
     }
 
-    return { newEmail: emailRestoringData.email };
+    return emailRestoringData;
   }
 
   @Post()
@@ -92,7 +92,7 @@ export class EmailController {
     @CurrentUser() { _id, email, lastName, name }: IUser,
     @Body() emailData: UpdateEmailDto,
     @Transaction() session: ClientSession,
-  ) {
+  ): Promise<EmailDataResponse> {
     const {
       code: confirmationCode,
       expiresIn,

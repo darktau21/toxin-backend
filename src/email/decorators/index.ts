@@ -1,1 +1,1 @@
-export * from './is-unique-new-email-data.decorator';
+export * from './is-unique-email-data.decorator';

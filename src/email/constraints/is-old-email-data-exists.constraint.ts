@@ -22,7 +22,7 @@ export class IsOldEmailDataExistsConstraint
     value: string,
     validationArguments: ValidationArguments,
   ): Promise<boolean> {
-    return this.emailService.isOldEmailDataExists(
+    return this.emailService.isOldDataExists(
       validationArguments.property,
       value,
     );

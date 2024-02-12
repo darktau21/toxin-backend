@@ -22,7 +22,7 @@ export class IsUniqueEmailDataConstraint
     value: string,
     validationArguments: ValidationArguments,
   ): Promise<boolean> {
-    return !(await this.emailService.isNewEmailDataExists(
+    return !(await this.emailService.isConfirmationDataExists(
       validationArguments.property,
       value,
     ));
