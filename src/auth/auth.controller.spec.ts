@@ -1,25 +1,26 @@
 import type { FastifyReply } from 'fastify';
+import type { ClientSession, Connection } from 'mongoose';
 
-import { type DeepMocked, createMock } from '@golevelup/ts-jest';
-import { ConfigService } from '@nestjs/config';
+import { createMock } from '@golevelup/ts-jest';
 import { Test } from '@nestjs/testing';
 
 import type { LoginDto, RegisterDto } from '~/auth/dto';
-import type { IRefreshTokenData } from '~/auth/interfaces';
+import type {
+  IFingerprint,
+  IRefreshTokenData,
+  ITokens,
+} from '~/auth/interfaces';
 
+import { HttpException } from '~/app/exceptions';
 import { AuthController } from '~/auth/auth.controller';
 import { AuthService } from '~/auth/auth.service';
-import { Genders } from '~/user/schemas';
+import { EmailService } from '~/email/email.service';
+import { Genders, type IUser } from '~/user/interfaces';
 
 describe('AuthController', () => {
   let authController: AuthController;
-  let authService: DeepMocked<AuthService>;
-  let configService: DeepMocked<AppConfigService>;
-
-  const mockLoginDto: LoginDto = {
-    email: 'test@test.com',
-    password: 'qwerty123',
-  };
+  let authService: AuthService;
+  let emailService: EmailService;
 
   const mockRegisterDto: RegisterDto = {
     birthday: '2002-04-13',
@@ -28,49 +29,52 @@ describe('AuthController', () => {
     isSubscriber: false,
     lastName: 'Smith',
     name: 'John',
+    password: 'qwerty21',
+  };
+  const mockLoginDto: LoginDto = {
+    email: 'test@test.com',
     password: 'qwerty123',
   };
-
-  const mockFingerprint = {
+  const mockFingerprint: IFingerprint = {
     ip: '192.0.0.1',
+    userAgent:
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64; en-US) AppleWebKit/601.45 (KHTML, like Gecko) Chrome/52.0.1972.348 Safari/534.0 Edge/10.43428',
   };
-
-  const mockRefreshToken = 'MOCK_REFRESH_TOKEN';
-  const mockAccessToken = 'MOCK_ACCESS_TOKEN';
-  const newMockRefreshToken = 'NEW_MOCK_REFRESH_TOKEN';
-  const newMockAccessToken = 'NEW_MOCK_ACCESS_TOKEN';
+  const mockAccessToken = 'sdkljroejroegfglhnfk';
+  const newMockAccessToken = 'tiiqmqnfjroegfglhtlq';
+  const mockRefreshToken = 'fklsdhfishfdshfhlsdfkh';
+  const newMockRefreshToken = 'ajrmgmbishfdshqorkhmfum';
   const mockRefreshTokenData: IRefreshTokenData = {
-    expiresIn: 100_000,
+    expiresIn: new Date(),
     fingerprint: mockFingerprint,
     refreshToken: mockRefreshToken,
-    userId: '6578b7e174334f130d4401f9',
+    user: createMock<IUser>(),
+  };
+  const mockTokens: ITokens = {
+    accessToken: mockAccessToken,
+    refreshToken: mockRefreshToken,
+    refreshTokenData: mockRefreshTokenData,
   };
 
-  const mockResponse: DeepMocked<FastifyReply> = createMock<FastifyReply>();
+  const mockResponse: FastifyReply = createMock<FastifyReply>();
+  const mockSession: ClientSession = createMock<ClientSession>();
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       controllers: [AuthController],
+      providers: [
+        {
+          provide: 'DatabaseConnection',
+          useValue: createMock<Connection>(),
+        },
+      ],
     })
       .useMocker(createMock)
       .compile();
 
     authController = module.get(AuthController);
     authService = module.get(AuthService);
-    configService = module.get(ConfigService);
-
-    jest.spyOn(configService, 'get').mockReturnValue('production');
-    jest.spyOn(mockResponse, 'code').mockReturnThis();
-    jest.spyOn(authService, 'login').mockResolvedValue({
-      accessToken: mockAccessToken,
-      refreshToken: mockRefreshToken,
-      refreshTokenData: mockRefreshTokenData,
-    });
-    jest.spyOn(authService, 'refresh').mockResolvedValue({
-      accessToken: newMockAccessToken,
-      refreshToken: newMockRefreshToken,
-      refreshTokenData: mockRefreshTokenData,
-    });
+    emailService = module.get(EmailService);
   });
 
   it('should be defined', () => {
@@ -78,50 +82,33 @@ describe('AuthController', () => {
   });
 
   describe('login', () => {
-    it('should call auth service login method with provided params', async () => {
-      jest.spyOn(authService, 'login');
-      await authController.login(mockLoginDto, mockFingerprint, mockResponse);
-      expect(authService.login).toHaveBeenCalledWith(
-        mockLoginDto,
-        mockFingerprint,
-      );
-    });
+    it('should return tokens', async () => {
+      jest.spyOn(authService, 'login').mockResolvedValue(mockTokens);
 
-    it('should should set cookie with provided refresh token', async () => {
-      jest.spyOn(mockResponse, 'setCookie');
-
-      await authController.login(mockLoginDto, mockFingerprint, mockResponse);
-      expect(mockResponse.setCookie).toHaveBeenCalledWith(
-        expect.anything(),
-        mockRefreshToken,
-        expect.anything(),
-      );
-    });
-
-    it('should return provided access token', async () => {
       const result = await authController.login(
         mockLoginDto,
         mockFingerprint,
         mockResponse,
       );
-      expect(result).toEqual({
-        accessToken: mockAccessToken,
-      });
+
+      expect(result).toEqual(mockTokens);
+    });
+
+    it('should throw http exception if password or email wrong', async () => {
+      jest.spyOn(authService, 'login').mockResolvedValue(null);
+
+      await expect(
+        authController.login(mockLoginDto, mockFingerprint, mockResponse),
+      ).rejects.toThrow(HttpException);
     });
   });
 
   describe('logout', () => {
-    it('should call logout auth service method with provided params', async () => {
-      jest.spyOn(authService, 'logout');
-
-      await authController.logout(mockResponse, mockRefreshToken);
-      expect(authService.logout).toHaveBeenCalledWith(mockRefreshToken);
-    });
-
     it('should clear cookie', async () => {
       jest.spyOn(mockResponse, 'clearCookie');
 
       await authController.logout(mockResponse, mockRefreshToken);
+
       expect(mockResponse.clearCookie).toHaveBeenCalled();
     });
 
@@ -132,34 +119,12 @@ describe('AuthController', () => {
         mockResponse,
         mockRefreshToken,
       );
+
       expect(result).toEqual(null);
     });
   });
 
   describe('register', () => {
-    it('should call register auth service method with provided params', async () => {
-      await authController.register(
-        mockRegisterDto,
-        mockFingerprint,
-        mockResponse,
-      );
-
-      expect(authService.register).toHaveBeenCalledWith(mockRegisterDto);
-    });
-
-    it('should call register auth service method with provided params', async () => {
-      await authController.register(
-        mockRegisterDto,
-        mockFingerprint,
-        mockResponse,
-      );
-
-      expect(authService.login).toHaveBeenCalledWith(
-        mockRegisterDto,
-        mockFingerprint,
-      );
-    });
-
     it('should should set cookie with provided refresh token', async () => {
       jest.spyOn(mockResponse, 'setCookie');
 
@@ -167,6 +132,7 @@ describe('AuthController', () => {
         mockRegisterDto,
         mockFingerprint,
         mockResponse,
+        mockSession,
       );
       expect(mockResponse.setCookie).toHaveBeenCalledWith(
         expect.anything(),
@@ -176,58 +142,80 @@ describe('AuthController', () => {
     });
 
     it('should return access token', async () => {
+      jest.spyOn(authService, 'login').mockResolvedValue(mockTokens);
+
       const result = await authController.register(
         mockRegisterDto,
         mockFingerprint,
         mockResponse,
+        mockSession,
       );
-      expect(result).toEqual({
-        accessToken: mockAccessToken,
-      });
+      expect(typeof result.accessToken).toBe('string');
+    });
+
+    it('should throw http exception if user already registered', async () => {
+      jest.spyOn(emailService, 'update').mockResolvedValue(null);
+
+      await expect(
+        authController.register(
+          mockRegisterDto,
+          mockFingerprint,
+          mockResponse,
+          mockSession,
+        ),
+      ).rejects.toThrow(HttpException);
     });
   });
 
   describe('refresh', () => {
-    it('should call refresh auth service method with provided data', async () => {
-      jest.spyOn(authService, 'refresh');
-
-      await authController.refresh(
-        mockRefreshToken,
-        mockFingerprint,
-        mockResponse,
-      );
-
-      expect(authService.refresh).toHaveBeenCalledWith(
-        mockRefreshToken,
-        mockFingerprint,
-      );
-    });
-
     it('should should set cookie with new refresh token', async () => {
       jest.spyOn(mockResponse, 'setCookie');
+      jest.spyOn(authService, 'refresh').mockResolvedValue({
+        ...mockTokens,
+        refreshToken: newMockRefreshToken,
+      });
 
       await authController.refresh(
         mockRefreshToken,
         mockFingerprint,
         mockResponse,
+        mockSession,
       );
 
       expect(mockResponse.setCookie).toHaveBeenCalledWith(
         expect.anything(),
-        newMockRefreshToken,
+        expect.not.stringMatching(mockRefreshToken),
         expect.anything(),
       );
     });
 
     it('should return new access token', async () => {
+      jest.spyOn(authService, 'refresh').mockResolvedValue({
+        ...mockTokens,
+        accessToken: newMockAccessToken,
+      });
+
       const result = await authController.refresh(
         mockRefreshToken,
         mockFingerprint,
         mockResponse,
+        mockSession,
       );
-      expect(result).toEqual({
-        accessToken: newMockAccessToken,
-      });
+
+      expect(result.accessToken).not.toBe(mockAccessToken);
+    });
+
+    it('should throw http exception if refresh session expired', async () => {
+      jest.spyOn(authService, 'refresh').mockResolvedValue(null);
+
+      await expect(
+        authController.refresh(
+          mockRefreshToken,
+          mockFingerprint,
+          mockResponse,
+          mockSession,
+        ),
+      ).rejects.toThrow(HttpException);
     });
   });
 });

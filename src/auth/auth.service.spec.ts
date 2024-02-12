@@ -1,29 +1,31 @@
-import type { RedisCache } from 'cache-manager-redis-yet';
-
-import { type DeepMocked, createMock } from '@golevelup/ts-jest';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { UnauthorizedException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { createMock } from '@golevelup/ts-jest';
+import { CacheModule } from '@nestjs/cache-manager';
+import { getModelToken } from '@nestjs/mongoose';
 import { Test, type TestingModule } from '@nestjs/testing';
-import { hash } from 'bcrypt';
-import { Types } from 'mongoose';
-import { validate } from 'uuid';
+import { hashSync } from 'bcrypt';
+import { type Model, Types } from 'mongoose';
 
 import type {
   IAccessTokenData,
   IFingerprint,
   IRefreshTokenData,
+  ITokens,
 } from '~/auth/interfaces';
 
 import { AuthService } from '~/auth/auth.service';
-import { Genders, Roles, type UserDocument } from '~/user/schemas';
+import { Genders, type IUser, Roles } from '~/user/interfaces';
+import { USER_SCHEMA_NAME } from '~/user/schemas';
 import { UserService } from '~/user/user.service';
+
+import type { RegisterDto } from './dto';
+
+import { REFRESH_TOKEN_DATA_SCHEMA_NAME } from './schemas';
+import { TokenService } from './token.service';
 
 describe('AuthService', () => {
   let authService: AuthService;
-  let userService: DeepMocked<UserService>;
-  let configService: DeepMocked<AppConfigService>;
-  let cacheManager: DeepMocked<RedisCache>;
+  let userService: UserService;
+  let tokenService: TokenService;
 
   const mockUser = {
     _id: new Types.ObjectId('6578b7e174334f130d4401f9'),
@@ -37,33 +39,45 @@ describe('AuthService', () => {
     name: 'John',
     password: 'qwerty21',
     role: Roles.USER,
-  };
-
+  } as IUser;
   const mockFingerprint: IFingerprint = {
     ip: '192.0.0.1',
     userAgent:
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64; en-US) AppleWebKit/601.45 (KHTML, like Gecko) Chrome/52.0.1972.348 Safari/534.0 Edge/10.43428',
   };
-
+  const mockAccessToken = 'sdkljroejroegfglhnfk';
   const mockAccessTokenData: IAccessTokenData = {
-    email: 'test13@gmail.com',
     id: '6578b7e174334f130d4401f9',
     role: Roles.USER,
   };
-
   const mockRefreshToken = 'fklsdhfishfdshfhlsdfkh';
   const mockRefreshTokenData: IRefreshTokenData = {
-    expiresIn: 100_000,
+    expiresIn: new Date(),
     fingerprint: mockFingerprint,
     refreshToken: mockRefreshToken,
-    userId: '6578b7e174334f130d4401f9',
+    user: mockUser,
+  };
+  const mockTokens: ITokens = {
+    accessToken: mockAccessToken,
+    refreshToken: mockRefreshToken,
+    refreshTokenData: mockRefreshTokenData,
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [CacheModule.register()],
       providers: [
         AuthService,
-        { provide: CACHE_MANAGER, useValue: createMock<RedisCache>() },
+        UserService,
+        TokenService,
+        {
+          provide: getModelToken(REFRESH_TOKEN_DATA_SCHEMA_NAME),
+          useValue: createMock<Model<IRefreshTokenData>>(),
+        },
+        {
+          provide: getModelToken(USER_SCHEMA_NAME),
+          useValue: createMock<Model<IUser>>(),
+        },
       ],
     })
       .useMocker(createMock)
@@ -71,8 +85,7 @@ describe('AuthService', () => {
 
     authService = module.get(AuthService);
     userService = module.get(UserService);
-    configService = module.get(ConfigService);
-    cacheManager = module.get(CACHE_MANAGER);
+    tokenService = module.get(TokenService);
   });
 
   it('should be defined', () => {
@@ -83,61 +96,54 @@ describe('AuthService', () => {
     it('should return new user', async () => {
       jest.spyOn(userService, 'create').mockResolvedValue(mockUser);
 
-      const result = await authService.register(mockUser);
+      const result = await authService.register(mockUser as RegisterDto);
+
       expect(result).toEqual(mockUser);
     });
   });
 
   describe('login', () => {
-    it('should throw UnauthorizedException if user not found', async () => {
-      jest.spyOn(userService, 'findOne').mockResolvedValueOnce(null);
-
-      await expect(
-        authService.login(mockUser, mockFingerprint),
-      ).rejects.toThrow(UnauthorizedException);
-    });
-
-    beforeEach(async () => {
-      jest.spyOn(configService, 'get').mockReturnValue(10_000);
-
-      const hashedPassword = await hash(mockUser.password, 1);
+    beforeEach(() => {
       jest.spyOn(userService, 'findOne').mockResolvedValue({
         ...mockUser,
-        password: hashedPassword,
-      } as unknown as UserDocument);
+        password: hashSync(mockUser.password, 1),
+      });
+      jest.spyOn(tokenService, 'generateTokens').mockResolvedValue(mockTokens);
     });
 
-    it('should throw an UnauthorizedException if password is wrong', async () => {
-      await expect(
-        authService.login(
-          { email: mockUser.email, password: 'asdf12345' },
-          mockFingerprint,
-        ),
-      ).rejects.toThrow(UnauthorizedException);
+    it('should return null if user not found', async () => {
+      jest.spyOn(userService, 'findOne').mockResolvedValueOnce(null);
+
+      const result = await authService.login(mockUser, mockFingerprint);
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null if password is wrong', async () => {
+      const result = await authService.login(
+        { email: mockUser.email, password: 'test' },
+        mockFingerprint,
+      );
+
+      expect(result).toBeNull();
     });
 
     it('should return access token', async () => {
       const result = await authService.login(mockUser, mockFingerprint);
 
-      expect(result.accessToken).toBeDefined();
+      expect(typeof result.accessToken).toBe('string');
     });
 
     it('should return refresh token', async () => {
       const result = await authService.login(mockUser, mockFingerprint);
 
-      expect(result.refreshToken).toBeDefined();
-    });
-
-    it('refresh token should be a valid uuid string', async () => {
-      const result = await authService.login(mockUser, mockFingerprint);
-
-      expect(validate(result.refreshToken)).toBeTruthy();
+      expect(typeof result.refreshToken).toBe('string');
     });
 
     it('should return refresh token data', async () => {
       const result = await authService.login(mockUser, mockFingerprint);
 
-      expect(result.refreshTokenData).toBeDefined();
+      expect(result.refreshTokenData).toEqual(mockRefreshTokenData);
     });
   });
 
@@ -150,70 +156,82 @@ describe('AuthService', () => {
   });
 
   describe('validateUser', () => {
-    it('should throw UnauthorizedException if user not found', async () => {
+    it('should return null if user not found', async () => {
       jest.spyOn(userService, 'findById').mockResolvedValue(null);
 
-      await expect(
-        authService.validateUser(mockAccessTokenData),
-      ).rejects.toThrow(UnauthorizedException);
+      const result = await authService.validateUser(mockAccessTokenData);
+
+      expect(result).toBeNull();
     });
 
-    it('should throw UnauthorizedException if user is blocked', async () => {
+    it('should return null if user is blocked', async () => {
       jest.spyOn(userService, 'findById').mockResolvedValue({
         ...mockUser,
         isBlocked: true,
-      } as unknown as UserDocument);
+      });
 
-      await expect(
-        authService.validateUser(mockAccessTokenData),
-      ).rejects.toThrow(UnauthorizedException);
+      const result = await authService.validateUser(mockAccessTokenData);
+
+      expect(result).toBeNull();
     });
 
     it('should return user', async () => {
-      jest
-        .spyOn(userService, 'findById')
-        .mockResolvedValue(mockUser as unknown as UserDocument);
+      jest.spyOn(userService, 'findById').mockResolvedValue(mockUser);
 
       const result = await authService.validateUser(mockAccessTokenData);
+
       expect(result).toEqual(mockUser);
     });
   });
 
   describe('refresh', () => {
-    it('should throw UnauthorizedException if refresh token data not found', async () => {
-      jest.spyOn(cacheManager, 'get').mockResolvedValue(null);
-
-      await expect(
-        authService.refresh(mockRefreshToken, mockFingerprint),
-      ).rejects.toThrow(UnauthorizedException);
+    beforeEach(() => {
+      jest
+        .spyOn(tokenService, 'deleteRefreshToken')
+        .mockResolvedValue(mockRefreshTokenData);
+      jest.spyOn(tokenService, 'generateTokens').mockResolvedValue(mockTokens);
     });
 
-    it('should throw UnauthorizedException if user agent changed', async () => {
-      jest.spyOn(cacheManager, 'get').mockResolvedValue({
+    it('should return null if refresh token data not found', async () => {
+      jest.spyOn(tokenService, 'deleteRefreshToken').mockResolvedValue(null);
+
+      const result = await authService.refresh(
+        mockRefreshToken,
+        mockFingerprint,
+      );
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null if user agent changed', async () => {
+      jest.spyOn(tokenService, 'deleteRefreshToken').mockResolvedValue({
         ...mockRefreshTokenData,
-        fingerprint:
-          'Mozilla/5.0 (Linux i673 x86_64; en-US) AppleWebKit/603.24 (KHTML, like Gecko) Chrome/47.0.1673.104 Safari/533',
+        fingerprint: {
+          ip: '0.0.0.0',
+          userAgent:
+            'Mozilla/5.0 (Linux i673 x86_64; en-US) AppleWebKit/603.24 (KHTML, like Gecko) Chrome/47.0.1673.104 Safari/533',
+        },
       });
 
-      await expect(
-        authService.refresh(mockRefreshToken, mockFingerprint),
-      ).rejects.toThrow(UnauthorizedException);
+      const result = await authService.refresh(
+        mockRefreshToken,
+        mockFingerprint,
+      );
+
+      expect(result).toBeNull();
     });
 
-    it('should throw UnauthorizedException if user not found', async () => {
-      jest.spyOn(userService, 'findById').mockResolvedValue(null);
-
-      await expect(
-        authService.refresh(mockRefreshToken, mockFingerprint),
-      ).rejects.toThrow(UnauthorizedException);
-    });
-
-    beforeEach(async () => {
-      jest.spyOn(cacheManager, 'get').mockResolvedValue(mockRefreshTokenData);
+    it('should return null if user not found', async () => {
       jest
-        .spyOn(userService, 'findById')
-        .mockResolvedValue(mockUser as unknown as UserDocument);
-      jest.spyOn(configService, 'get').mockReturnValue(10_000);
+        .spyOn(tokenService, 'deleteRefreshToken')
+        .mockResolvedValue({ ...mockRefreshTokenData, user: null });
+
+      const result = await authService.refresh(
+        mockRefreshToken,
+        mockFingerprint,
+      );
+
+      expect(result).toBeNull();
     });
 
     it('should return access token', async () => {
@@ -222,7 +240,7 @@ describe('AuthService', () => {
         mockFingerprint,
       );
 
-      expect(result.accessToken).toBeDefined();
+      expect(typeof result.accessToken).toBe('string');
     });
 
     it('should return refresh token', async () => {
@@ -231,16 +249,7 @@ describe('AuthService', () => {
         mockFingerprint,
       );
 
-      expect(result.refreshToken).toBeDefined();
-    });
-
-    it('refresh token should be a valid uuid string', async () => {
-      const result = await authService.refresh(
-        mockRefreshToken,
-        mockFingerprint,
-      );
-
-      expect(validate(result.refreshToken)).toBeTruthy();
+      expect(typeof result.refreshToken).toBe('string');
     });
 
     it('should return refresh token data', async () => {

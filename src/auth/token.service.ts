@@ -25,7 +25,7 @@ export class TokenService {
     private readonly configService: AppConfigService,
   ) {}
 
-  private async generateAccessToken(jwtData: IAccessTokenData) {
+  private generateAccessToken(jwtData: IAccessTokenData) {
     return this.jwtService.signAsync(jwtData);
   }
 

@@ -32,8 +32,8 @@ export class AuthService {
     return this.tokenService.generateTokens(user, fingerprint);
   }
 
-  async logout(refreshToken: string, session?: ClientSession) {
-    await this.tokenService.deleteRefreshToken(refreshToken, session);
+  logout(refreshToken: string, session?: ClientSession) {
+    this.tokenService.deleteRefreshToken(refreshToken, session);
   }
 
   async refresh(
@@ -54,7 +54,7 @@ export class AuthService {
       return null;
     }
 
-    return await this.tokenService.generateTokens(
+    return this.tokenService.generateTokens(
       tokenData.user,
       fingerprint,
       session,

@@ -8,7 +8,7 @@ import { isVerificationRequired } from '../decorators';
 export class VerifyGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
-  async canActivate(context: ExecutionContext) {
+  canActivate(context: ExecutionContext) {
     if (!isVerificationRequired(context, this.reflector)) {
       return true;
     }

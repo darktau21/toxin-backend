@@ -1,18 +1,17 @@
 import type { ExecutionContext } from '@nestjs/common';
 import type { HttpArgumentsHost } from '@nestjs/common/interfaces';
 
-import { type DeepMocked, createMock } from '@golevelup/ts-jest';
+import { createMock } from '@golevelup/ts-jest';
 import { Test } from '@nestjs/testing';
 
-import { UnauthorizedGuard } from '~/auth/guards';
-import { REFRESH_TOKEN_COOKIE } from '~/auth/interfaces';
+import { REFRESH_TOKEN_COOKIE } from '../interfaces';
+import { UnauthorizedGuard } from './unauthorized.guard';
 
 describe('UnauthorizedGuard', () => {
   let unauthorizedGuard: UnauthorizedGuard;
 
-  const mockExecutionContext: DeepMocked<ExecutionContext> =
-    createMock<ExecutionContext>();
-  const mockHttpArgumentsHost: DeepMocked<HttpArgumentsHost> =
+  const mockExecutionContext: ExecutionContext = createMock<ExecutionContext>();
+  const mockHttpArgumentsHost: HttpArgumentsHost =
     createMock<HttpArgumentsHost>();
 
   beforeEach(async () => {

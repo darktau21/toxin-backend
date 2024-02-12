@@ -27,8 +27,10 @@ import { UnauthorizedGuard } from './guards';
 import { IFingerprint, ITokens, REFRESH_TOKEN_COOKIE } from './interfaces';
 import { AccessTokenResponse } from './responses';
 
+const AUTH_CONTROLLER_ROUTE = 'auth';
+
 @ApiTags('Авторизация')
-@Controller('auth')
+@Controller(AUTH_CONTROLLER_ROUTE)
 @Public()
 export class AuthController {
   constructor(
@@ -60,7 +62,7 @@ export class AuthController {
     @Body() loginDto: LoginDto,
     @Fingerprint() fingerprint: IFingerprint,
     @Res({ passthrough: true }) res: FastifyReply,
-  ) {
+  ): Promise<ITokens> {
     const tokens = await this.authService.login(loginDto, fingerprint);
     if (!tokens) {
       throw new HttpException(
@@ -83,7 +85,7 @@ export class AuthController {
   ): Promise<null> {
     const { secureCookie } = this.configService.getSecurity();
 
-    await this.authService.logout(refreshToken);
+    this.authService.logout(refreshToken);
     res.clearCookie(REFRESH_TOKEN_COOKIE, {
       httpOnly: true,
       path: '/v1/auth',

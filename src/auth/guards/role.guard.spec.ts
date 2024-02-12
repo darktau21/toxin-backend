@@ -2,21 +2,21 @@ import type { ExecutionContext } from '@nestjs/common';
 import type { HttpArgumentsHost } from '@nestjs/common/interfaces';
 import type { FastifyRequest } from 'fastify';
 
-import { type DeepMocked, createMock } from '@golevelup/ts-jest';
+import { createMock } from '@golevelup/ts-jest';
 import { Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 
-import { RoleGuard } from '~/auth/guards';
-import { Roles, type UserDocument } from '~/user/schemas';
+import { Roles } from '~/user/interfaces';
+
+import { RoleGuard } from './role.guard';
 
 describe('RoleGuard', () => {
   let roleGuard: RoleGuard;
-  let reflector: DeepMocked<Reflector>;
+  let reflector: Reflector;
 
-  const mockExecutionContext: DeepMocked<ExecutionContext> =
-    createMock<ExecutionContext>();
+  const mockExecutionContext: ExecutionContext = createMock<ExecutionContext>();
 
-  const mockHttpArgumentsHost: DeepMocked<HttpArgumentsHost> =
+  const mockHttpArgumentsHost: HttpArgumentsHost =
     createMock<HttpArgumentsHost>();
 
   const mockAdmin = {
@@ -43,9 +43,8 @@ describe('RoleGuard', () => {
 
     jest.spyOn(mockHttpArgumentsHost, 'getRequest').mockReturnValue({
       user: mockAdmin,
-    } as unknown as FastifyRequest & {
-      user: UserDocument;
-    });
+    } as unknown as FastifyRequest);
+    jest.spyOn(reflector, 'getAllAndMerge').mockReturnValue([Roles.ADMIN]);
   });
 
   it('should be defined', () => {
@@ -54,7 +53,7 @@ describe('RoleGuard', () => {
 
   describe('canActivate', () => {
     it('should return true if roles is empty array', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([]);
+      jest.spyOn(reflector, 'getAllAndMerge').mockReturnValue([]);
 
       const result = roleGuard.canActivate(mockExecutionContext);
 
@@ -62,28 +61,23 @@ describe('RoleGuard', () => {
     });
 
     it("should return true if roles didn't provided", () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(null);
+      jest.spyOn(reflector, 'getAllAndMerge').mockReturnValue(null);
 
       const result = roleGuard.canActivate(mockExecutionContext);
 
       expect(result).toBeTruthy();
     });
 
-    it('should return true if user has needed role', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([Roles.ADMIN]);
-
+    it('should return true if user has required role', () => {
       const result = roleGuard.canActivate(mockExecutionContext);
 
       expect(result).toBeTruthy();
     });
 
-    it("should return false if user don't have", () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([Roles.ADMIN]);
+    it("should return false if user don't have required role", () => {
       jest.spyOn(mockHttpArgumentsHost, 'getRequest').mockReturnValue({
         user: mockUser,
-      } as unknown as FastifyRequest & {
-        user: UserDocument;
-      });
+      } as unknown as FastifyRequest);
 
       const result = roleGuard.canActivate(mockExecutionContext);
 
