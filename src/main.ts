@@ -1,5 +1,6 @@
 import { FastifyCookieOptions } from '@fastify/cookie';
 import fastifyCookiePlugin from '@fastify/cookie';
+import fastifyMultipart from '@fastify/multipart';
 import { VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import {
@@ -42,6 +43,8 @@ async function bootstrap() {
   await app.register(fastifyCookiePlugin, {
     secret: cookieSecret,
   } satisfies FastifyCookieOptions);
+  // @ts-expect-error incompatible plugin type
+  await app.register(fastifyMultipart, { attachFieldsToBody: true });
 
   app.enableVersioning({ defaultVersion: '1', type: VersioningType.URI });
 

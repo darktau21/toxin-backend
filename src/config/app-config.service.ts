@@ -7,6 +7,7 @@ import {
   MailerConfigSchema,
   RequestsConfigSchema,
   SecurityConfigSchema,
+  type S3ConfigSchema,
 } from './schemas';
 
 @Injectable()
@@ -34,5 +35,9 @@ export class AppConfigService {
 
   getRequests() {
     return this.configService.get<RequestsConfigSchema>('requests');
+  }
+
+  getS3() {
+    return this.configService.get<S3ConfigSchema>('s3');
   }
 }

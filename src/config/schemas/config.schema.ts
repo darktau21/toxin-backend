@@ -6,6 +6,7 @@ import { DbConfigSchema } from './db-config.schema';
 import { RequestsConfigSchema } from './requests-config.schema';
 import { SecurityConfigSchema } from './security-config.schema';
 import { MailerConfigSchema } from './mailer-config.schema';
+import { S3ConfigSchema } from './s3-config.schema';
 
 export class DatabasesConfigSchema {
   @ValidateNested()
@@ -37,4 +38,8 @@ export class ConfigSchema {
   @ValidateNested()
   @Type(() => MailerConfigSchema)
   mail: MailerConfigSchema;
+
+  @ValidateNested()
+  @Type(() => S3ConfigSchema)
+  s3: S3ConfigSchema;
 }

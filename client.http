@@ -1,9 +1,10 @@
-# @url = http://localhost:3000/v1
-@url = https://toxin-api.js-dev.su/v1
+@url = http://localhost:3000/v1
+# @url = https://toxin-api.js-dev.su/v1
+@accessToken = {{refresh.response.body.$.data.accessToken}}
 
 ###
 # @name register
-POST {{url}}/auth/register HTTP/1.1
+POST {{url}}/auth/register
 Accept: application/json
 Content-Type: application/json
 
@@ -17,8 +18,6 @@ Content-Type: application/json
     "password": "Qwerty123"
 }
 ###
-@accessToken = {{register.response.body.$.data.accessToken}}
-###
 
 ###
 # @name login
@@ -30,8 +29,6 @@ Content-Type: application/json
   "email": "naumenkokirill466@gmail.com",
   "password": "Qwerty123"
 }
-###
-@accessToken = {{login.response.body.$.data.accessToken}}
 ###
 
 ###
@@ -45,8 +42,6 @@ Content-Type: application/json
   "password": "Qwerty123"
 }
 ###
-@accessToken = {{loginAdmin.response.body.$.data.accessToken}}
-###
 
 ###
 # @name Logout
@@ -59,68 +54,62 @@ Accept: application/json
 GET {{url}}/auth/refresh
 Accept: application/json
 ###
-@accessToken = {{refresh.response.body.$.data.accessToken}}
-###
-
-###
-# @name getMe
-GET {{url}}/user/me
-Accept: application/json
-Authorization: Bearer {{accessToken}}
-###
 
 ###
 # @name getUsers
-GET {{url}}/user
+GET {{url}}/users
     # ?select=gender
-    # &birthday[gte]=2002-04-10
-    # &sort=-birthday
-
+    ?birthday=2002-04-10
+    # ?sort=-createdAt
+    # &page=1010
 Accept: application/json
+Authorization: Bearer {{accessToken}}
 ###
 
 ###
 # @name getSingleUser
-GET {{url}}/user/6590a246e8f5b79f07021f26
+GET {{url}}/users/65
 Accept: application/json
 ###
 
+
 ###
-# @name updateMe
-PATCH {{url}}/user/me
+# @name confirmEmail
+GET {{url}}/email/confirm/{{code}}
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+###
+@code = aba279a792c839c6009419265c9a86dfb32c289ba09f087469a8554877d83c34
+###
+
+###
+# @name updateEmail
+POST {{url}}/email
+Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-  "gender": "female",
-  "email": "knaumenko@sfedu.ru"
+  "newEmail": "naumenkokirill466+test@gmail.com"
 }
 ###
 
 ###
-# @name DeleteMe
-DELETE  {{url}}/user/me
+# @name restoreEmail
+GET {{url}}/email/restore/{{restoreCode}}
 Accept: application/json
 Authorization: Bearer {{accessToken}}
+###
+@restoreCode = 67d14c46b3b991f618c012a55262dc6422f1cbec39cf9658b9730b90881ba237
 ###
 
-###
-# @name restoreCurrentUser
-GET {{url}}/user/me/restore
+# @name accountAvatar
+POST {{url}}/account/avatar
 Accept: application/json
-Authorization: Bearer {{accessToken}}
-###
+Content-Type: multipart/form-data; boundary=-------------573cf973d5228
+-------------573cf973d5228
+Content-Disposition: form-data; name="avatar"; filename="avatar.png"
+Content-Type: image/png
 
-###
-# @name resendConfirmationMail
-GET {{url}}/email/resendConfirmation
-Accept: application/json
-Authorization: Bearer {{accessToken}}
-###
-
-###
-# @name confirmEmail
-GET {{url}}/email/3a4626f3a4a408cae111af86f0c603f37489e4553df0a946e676ca843f726c27
-Accept: application/json
-Authorization: Bearer {{accessToken}}
-###
+< ./avatar.png
+-------------573cf973d5228--
